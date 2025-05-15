@@ -1,0 +1,613 @@
+/* Importar uma fonte do Google Fonts (Opcional, mas recomendado para um visual moderno) */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+/* Variáveis de Cor */
+:root {
+    --azul-escuro: #0b4d73;
+    --amarelo-dourado: #dfa933;
+    --cor-texto-principal: #333333; /* Cor para texto comum */
+    --cor-texto-claro: #ffffff;
+    --cor-fundo-claro: #f4f4f4;
+    --cor-fundo-alternativo: #e9ecef;
+}
+
+/* Reset básico e configurações globais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Faz o padding e a borda não aumentarem o tamanho total do elemento */
+}
+
+body {
+    font-family: 'Roboto', sans-serif; /* Usando a fonte importada */
+    line-height: 1.6;
+    color: var(--cor-texto-principal);
+    background-color: #ffffff; /* Fundo branco padrão para o corpo */
+    overflow-x: hidden; /* Evita scroll horizontal desnecessário */
+}
+
+.container {
+    width: 90%; /* Largura do conteúdo principal */
+    max-width: 1100px; /* Largura máxima */
+    margin: 0 auto; /* Centraliza o container na página */
+    padding: 20px 0; /* Espaçamento interno vertical */
+}
+
+h1, h2, h3 {
+    margin-bottom: 1rem; /* Espaçamento abaixo dos títulos */
+    color: var(--azul-escuro); /* Títulos com a cor azul escura principal */
+}
+
+p {
+    margin-bottom: 1rem;
+}
+
+a {
+    text-decoration: none; /* Remove sublinhado padrão dos links */
+    color: var(--amarelo-dourado); /* Links com a cor amarela dourada */
+}
+
+img {
+    max-width: 100%; /* Torna as imagens responsivas por padrão */
+    height: auto;
+}
+
+/* Estilos do Cabeçalho */
+.header {
+    background-color: var(--azul-escuro);
+    color: var(--cor-texto-claro);
+    padding: 15px 0;
+    position: fixed; /* Faz o cabeçalho ficar fixo no topo */
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Garante que o cabeçalho fique sobre outros elementos */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Sombra sutil */
+}
+
+.header .container {
+    display: flex; /* Alinha a logo e o menu na mesma linha */
+    justify-content: space-between; /* Espaça a logo para um lado e o menu para o outro */
+    align-items: center; /* Centraliza verticalmente */
+    padding-top: 0; /* Remove padding superior do container específico do header */
+    padding-bottom: 0; /* Remove padding inferior */
+}
+
+.header .logo {
+    font-size: 1.8rem; /* Tamanho da fonte da logo */
+    font-weight: 700; /* Peso da fonte */
+    color: var(--amarelo-dourado); /* Logo com a cor amarela */
+}
+
+.header .nav-menu a {
+    color: var(--cor-texto-claro);
+    margin-left: 20px; /* Espaçamento entre os itens do menu */
+    font-weight: 500;
+    transition: color 0.3s ease; /* Transição suave da cor ao passar o mouse */
+}
+
+.header .nav-menu a:hover {
+    color: var(--amarelo-dourado); /* Muda a cor ao passar o mouse */
+}
+
+/* Estilos da Seção Hero */
+.hero-section {
+    background-color: var(--azul-escuro); /* Fundo azul escuro */
+    color: var(--cor-texto-claro);
+    /* Para o estilo "tela cheia" como Letterboxd, a primeira seção geralmente ocupa a altura da tela */
+    min-height: 100vh; /* Altura mínima de 100% da altura da viewport (tela visível) */
+    display: flex; /* Para centralizar o conteúdo verticalmente */
+    align-items: center; /* Alinha itens no centro vertical */
+    justify-content: center; /* Alinha itens no centro horizontal */
+    text-align: center; /* Centraliza o texto dentro do container */
+    padding-top: 80px; /* Espaçamento no topo para compensar o header fixo */
+    padding-bottom: 40px;
+}
+
+.hero-section .container {
+    /* O container já centraliza horizontalmente, aqui ajustamos o padding se necessário */
+}
+
+.hero-section h1 {
+    font-size: 2.8rem; /* Tamanho grande para o título principal */
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--cor-texto-claro); /* Título principal claro sobre fundo escuro */
+}
+
+.hero-section .subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.85); /* Um pouco mais sutil que o branco puro */
+}
+
+.hero-section .cta-button {
+    background-color: var(--amarelo-dourado);
+    color: var(--azul-escuro); /* Texto escuro no botão amarelo */
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 5px; /* Cantos arredondados */
+    text-transform: uppercase; /* Texto em maiúsculas */
+    display: inline-block; /* Para que padding e margin funcionem corretamente */
+    margin-bottom: 3rem;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Transição suave */
+}
+
+.hero-section .cta-button:hover {
+    background-color: #c89027; /* Um tom de amarelo um pouco mais escuro no hover */
+    transform: translateY(-2px); /* Efeito de leve elevação */
+}
+
+.search-container {
+    background-color: rgba(255, 255, 255, 0.1); /* Fundo levemente transparente */
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 2rem;
+    display: flex; /* Para alinhar barra de busca, filtro e botão */
+    flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha em telas menores */
+    gap: 15px; /* Espaçamento entre os itens */
+    align-items: center;
+    justify-content: center;
+}
+
+.search-bar {
+    flex-grow: 1; /* Faz a barra de pesquisa ocupar o máximo de espaço possível */
+    padding: 15px;
+    font-size: 1rem;
+    border: 1px solid var(--amarelo-dourado);
+    border-radius: 5px;
+    min-width: 300px; /* Largura mínima */
+}
+
+.filter-widget select,
+.search-button {
+    padding: 15px;
+    font-size: 1rem;
+    border: 1px solid var(--amarelo-dourado);
+    border-radius: 5px;
+    background-color: var(--cor-texto-claro);
+    color: var(--cor-texto-principal);
+}
+
+.filter-widget select {
+    min-width: 180px; /* Largura mínima para o seletor de cidade */
+}
+
+.search-button {
+    background-color: var(--amarelo-dourado);
+    color: var(--azul-escuro);
+    font-weight: 700;
+    cursor: pointer; /* Muda o cursor para indicar que é clicável */
+    transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+    background-color: #c89027;
+}
+
+/* Estilos da Seção de Serviços */
+.services-section {
+    padding: 60px 0; /* Espaçamento interno vertical */
+    background-color: var(--cor-fundo-claro); /* Um fundo levemente diferente para destacar a seção */
+}
+
+.services-section h2 {
+    text-align: center; /* Centraliza o título da seção */
+    font-size: 2.2rem;
+    margin-bottom: 40px;
+}
+
+/* Substitua o estilo anterior da .services-grid por este */
+.services-grid {
+    display: flex; /* Muda de Grid para Flexbox */
+    overflow-x: auto; /* Permite a rolagem horizontal */
+    overflow-y: hidden; /* Esconde a rolagem vertical se houver */
+    gap: 25px; /* Espaçamento entre os cards */
+    padding: 20px 5px; /* Adiciona um pouco de padding para a barra de rolagem não cortar os cards */
+    /* Para um efeito de "snap" (opcional, pode não funcionar em todos os navegadores perfeitamente): */
+    /* scroll-snap-type: x mandatory; */
+}
+
+/* Estilo para a barra de rolagem (opcional, visual) */
+.services-grid::-webkit-scrollbar {
+    height: 8px; /* Altura da barra de rolagem */
+}
+
+.services-grid::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Cor da trilha */
+    border-radius: 10px;
+}
+
+.services-grid::-webkit-scrollbar-thumb {
+    background: #ccc; /* Cor do "polegar" da barra de rolagem */
+    border-radius: 10px;
+}
+
+.services-grid::-webkit-scrollbar-thumb:hover {
+    background: #bbb; /* Cor ao passar o mouse */
+}
+
+/* Substitua os estilos anteriores do .service-card por estes */
+.service-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0; /* Borda um pouco mais suave */
+    border-radius: 12px; /* Cantos um pouco mais arredondados */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    /* Para a rolagem horizontal, os cards precisam ter uma largura definida */
+    min-width: 300px; /* Largura mínima do card */
+    max-width: 320px; /* Largura máxima opcional */
+    flex: 0 0 auto; /* Importante para flexbox em container com scroll */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.service-card .card-header-title {
+    background-color: #f0f8ff; /* Um azul bem clarinho, tipo "AliceBlue" */
+    padding: 12px 18px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.service-card .service-title {
+    font-size: 1.15rem; /* Ajuste no tamanho da fonte do título */
+    font-weight: 600; /* Um pouco menos pesado que 700 */
+    color: var(--azul-escuro);
+    margin-bottom: 0; /* Remove margem inferior padrão do h3 */
+}
+
+.service-card .card-body {
+    padding: 15px 18px;
+    flex-grow: 1; /* Faz o corpo do card ocupar o espaço restante */
+}
+
+.provider-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.provider-initial {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%; /* Círculo perfeito */
+    background-color: #e9ecef; /* Fundo cinza claro para a inicial */
+    color: var(--cor-texto-principal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-right: 12px;
+}
+
+.service-provider {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--cor-texto-principal);
+}
+
+.service-details p {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 4px; /* Espaçamento menor entre as linhas de detalhes */
+    line-height: 1.4;
+}
+
+.service-details .service-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--azul-escuro); /* Preço em azul escuro, como na imagem */
+    margin-bottom: 8px; /* Um pouco mais de espaço abaixo do preço */
+}
+
+.service-card .card-footer {
+    display: flex;
+    justify-content: space-between; /* Alinha avaliação à esquerda e status à direita */
+    align-items: center;
+    padding: 12px 18px;
+    border-top: 1px solid #e0e0e0;
+    background-color: #fdfdfd; /* Fundo do rodapé do card levemente diferente */
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.service-rating {
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--cor-texto-principal);
+}
+
+.service-rating .star-icon {
+    color: var(--amarelo-dourado); /* Estrela amarela */
+    font-size: 1.1rem; /* Tamanho da estrela */
+    margin-right: 6px;
+    line-height: 1; /* Para alinhar melhor a estrela com o texto */
+}
+
+.status-badge {
+    font-size: 0.75rem; /* Texto pequeno para o badge */
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px; /* Badge bem arredondado */
+    color: #333;
+}
+
+.status-badge.disponivel {
+    background-color: #fff8e1; /* Amarelo bem clarinho, similar ao da imagem */
+    color: #856404; /* Texto mais escuro para contraste no amarelo */
+    border: 1px solid #ffecb3; /* Borda sutil para o badge */
+}
+
+/* Remover o estilo da imagem antiga se ainda existir no seu CSS */
+/* .service-card .service-image { ... }  Pode apagar esse bloco */
+
+/* Estilos das Seções de Informação */
+.info-section {
+    padding: 50px 0;
+    text-align: center; /* Centraliza o texto por padrão nestas seções */
+}
+
+.info-section h2 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+}
+
+.info-section p {
+    max-width: 700px; /* Limita a largura do parágrafo para melhor legibilidade */
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+/* Estilo para a seção com fundo alternativo, se houver */
+.info-section.alternate-bg {
+    background-color: var(--cor-fundo-alternativo); /* Ex: #e9ecef */
+}
+
+/* Estilos do Rodapé CTA */
+.footer-cta {
+    background-color: var(--azul-escuro);
+    color: var(--cor-texto-claro);
+    padding: 50px 0;
+    text-align: center;
+}
+
+.footer-cta h2 {
+    font-size: 2rem;
+    color: var(--cor-texto-claro);
+    margin-bottom: 15px;
+}
+
+.footer-cta p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.app-download-buttons {
+    display: flex; /* Alinha os botões lado a lado */
+    justify-content: center; /* Centraliza os botões */
+    align-items: center;
+    flex-wrap: wrap; /* Permite quebrar linha em telas menores */
+    gap: 20px; /* Espaçamento entre os botões */
+}
+
+.app-button {
+    background-color: #ffffff; /* Fundo branco */
+    color: var(--azul-escuro); /* Texto azul escuro, para contraste com o fundo branco */
+    padding: 12px 25px;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--azul-escuro); /* Borda sutil na cor azul escuro */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Sombra leve opcional */
+}
+
+.app-button:hover {
+    background-color: #f0f0f0; /* Um cinza bem claro no hover para o fundo */
+    /* Ou você pode manter o fundo branco e apenas escurecer a borda/texto ou aumentar a sombra */
+    /* color: var(--amarelo-dourado); */ /* Exemplo: Mudar cor do texto no hover */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.app-button img {
+    width: 36px; /* Tamanho do ícone placeholder */
+    height: 36px;
+    /* Quando você tiver ícones reais, pode ajustar isso */
+}
+
+/* Ajustes para a seção de serviços em destaque */
+.services-section .container {
+    max-width: 1310px; /* Aumenta a largura máxima para esta seção específica */
+    /* Se você quiser que ocupe ainda mais da tela em resoluções muito largas,
+       você pode também aumentar a porcentagem da largura, por exemplo:
+       width: 95%;
+       Mas geralmente, apenas aumentar o max-width já dá o efeito desejado
+       para caber mais elementos.
+    */
+}
+
+/*
+   Lembre-se que a .services-grid já está configurada para rolagem horizontal
+   e os .service-card têm uma largura mínima. Este ajuste no .container
+   apenas dá mais espaço para a .services-grid exibir mais cards antes de rolar.
+*/
+
+/* ============================================ */
+/* MEDIA QUERIES (Responsividade)   */
+/* ============================================ */
+
+/* Telas Médias (Tablets, etc. - a partir de 769px até 1024px) */
+@media (max-width: 1024px) {
+    .hero-section h1 {
+        font-size: 2.5rem; /* Um pouco menor */
+    }
+
+    .hero-section .subtitle {
+        font-size: 1.1rem;
+    }
+
+    /* Ajuste para o container da seção de serviços para tablets */
+    .services-section .container {
+        max-width: 95%; /* Ocupa mais da largura disponível */
+    }
+}
+
+/* Telas Pequenas (Celulares em paisagem, tablets em retrato - até 768px) */
+/* Telas Pequenas (Celulares em paisagem, tablets em retrato - até 768px) */
+@media (max-width: 768px) {
+    .container {
+        width: 90%; /* Mantém um bom padding lateral */
+    }
+
+    .header .container {
+        flex-direction: column; /* Logo e menu um abaixo do outro */
+        align-items: center;
+        padding-bottom: 10px;
+    }
+
+    .header .logo {
+        margin-bottom: 10px;
+    }
+
+    .header .logo img {
+        height: 40px; /* Reduz a altura da logo no mobile */
+    }
+
+    .header .nav-menu {
+        display: none; /* Esconde o menu de navegação do cabeçalho no mobile */
+    }
+
+    .header .nav-menu a {
+        margin: 0 10px; /* Ajusta margens do menu */
+        font-size: 0.9rem;
+    }
+
+    .hero-section {
+        padding-top: 80px; /* REDUZIDO - Ajustado para altura do header mobile */
+        min-height: auto; /* Altura automática para o conteúdo */
+        padding-bottom: 30px;
+    }
+
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+
+    .hero-section .subtitle {
+        font-size: 1rem;
+    }
+
+    .search-container {
+        flex-direction: column; /* Barra de busca, filtro e botão um abaixo do outro */
+        padding: 15px;
+    }
+
+    .search-bar,
+    .filter-widget select,
+    .search-button {
+        width: 100%; /* Ocupam toda a largura disponível no container da busca */
+    }
+
+    .filter-widget select {
+        min-width: auto; /* Remove largura mínima no mobile */
+    }
+
+    .services-section h2,
+    .info-section h2,
+    .footer-cta h2 {
+        font-size: 1.8rem;
+    }
+
+    .app-download-buttons {
+        flex-direction: column; /* Botões de download um abaixo do outro */
+        gap: 15px;
+    }
+
+    .app-button {
+        width: 90%; /* Botões mais largos no mobile */
+        justify-content: center; /* Centraliza conteúdo do botão */
+        max-width: 300px; /* Uma largura máxima para não ficarem excessivos */
+    }
+
+    /* Mostrar e Estilizar Navegação no Rodapé Mobile */
+    .footer-nav-mobile {
+        display: flex;
+        flex-direction: column; /* Links um abaixo do outro */
+        align-items: center; /* Centraliza os links */
+    }
+
+    .footer-nav-mobile a {
+        color: var(--cor-texto-claro); /* Mantém a cor do texto do rodapé */
+        padding: 8px 15px; /* Espaçamento dos links */
+        font-size: 1rem;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+    }
+
+    .footer-nav-mobile a:hover {
+        background-color: rgba(255, 255, 255, 0.1); /* Leve destaque ao passar o mouse */
+        color: var(--amarelo-dourado);
+    }
+}
+
+/* Telas Muito Pequenas (Celulares em retrato - até 480px) */
+@media (max-width: 480px) {
+    .header .nav-menu {
+        text-align: center; /* Centraliza os links do menu */
+    }
+    .header .nav-menu a {
+        display: block; /* Links do menu um abaixo do outro */
+        margin: 8px 0; /* Espaçamento vertical entre eles */
+    }
+
+    .hero-section {
+        padding-top: 180px; /* Header pode ficar ainda maior se o menu quebrar em várias linhas */
+    }
+
+    .hero-section h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero-section .subtitle {
+        font-size: 0.9rem;
+    }
+
+    .services-section h2,
+    .info-section h2,
+    .footer-cta h2 {
+        font-size: 1.6rem;
+    }
+
+    .info-section p {
+        font-size: 1rem;
+    }
+}
+
+/* public/style.css - Adicionar este bloco */
+.footer-nav-mobile {
+    display: none; /* Escondido por padrão (em telas maiores) */
+    margin-top: 30px; /* Espaço acima dos links no rodapé */
+}
+
+.header .logo img {
+    height: 100px; /* Altura padrão da logo para desktop */
+    width: auto; /* Para manter a proporção */
+}
