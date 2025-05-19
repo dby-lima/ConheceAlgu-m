@@ -611,3 +611,265 @@ img {
     height: 100px; /* Altura padrão da logo para desktop */
     width: auto; /* Para manter a proporção */
 }
+
+.como-funciona-section {
+    background-color: var(--azul-escuro); /* Fundo azul escuro para a seção */
+    padding: 70px 0; /* Espaçamento vertical generoso */
+    text-align: center; /* Centraliza o título da seção e o grid por padrão */
+}
+
+.como-funciona-section .section-title h2 {
+    color: var(--cor-texto-claro); /* Título "Como Funciona" em branco */
+    font-size: 2.4rem; /* Tamanho do título da seção */
+    margin-bottom: 50px; /* Espaço abaixo do título da seção */
+    position: relative; /* Para possível pseudo-elemento decorativo */
+    display: inline-block; /* Para que o ::after se posicione corretamente */
+}
+
+/* Opcional: Linha decorativa abaixo do título da seção */
+.como-funciona-section .section-title h2::after {
+    content: '';
+    display: block;
+    width: 70px; /* Largura da linha */
+    height: 3px;  /* Espessura da linha */
+    background-color: var(--amarelo-dourado); /* Cor da linha */
+    margin: 15px auto 0; /* Centraliza a linha abaixo do título */
+}
+
+.como-funciona-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Layout responsivo em colunas */
+    gap: 30px; /* Espaçamento entre os cards */
+    align-items: stretch; /* Faz os cards terem a mesma altura se o conteúdo variar */
+}
+
+.como-funciona-card {
+    background-color: #ffffff; /* Fundo branco para os cards (destaque) */
+    padding: 35px 30px; /* Espaçamento interno do card */
+    border-radius: 12px; /* Cantos arredondados */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Sombra sutil para efeito premium */
+    text-align: center; /* Conteúdo do card centralizado */
+    color: var(--cor-texto-principal); /* Texto escuro dentro do card branco */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex; /* Para alinhar conteúdo interno verticalmente */
+    flex-direction: column; /* Conteúdo empilhado */
+    align-items: center; /* Centraliza o conteúdo horizontalmente */
+}
+
+.como-funciona-card:hover {
+    transform: translateY(-8px); /* Efeito de elevação no hover */
+    box-shadow: 0 12px 30px rgba(var(--azul-escuro-rgb, 11, 77, 115), 0.2); /* Sombra mais pronunciada no hover */
+    /* Nota: --azul-escuro-rgb não existe, precisaria definir se quiser usar assim.
+       Por enquanto, uma sombra escura genérica: 0 12px 30px rgba(0,0,0,0.15);
+    */
+}
+/* Para a sombra com cor, adicione ao :root se for usar:
+   --azul-escuro-rgb: 11, 77, 115;
+   E no hover do card: box-shadow: 0 12px 30px rgba(var(--azul-escuro-rgb), 0.2);
+   Por agora, usarei uma sombra preta mais simples: */
+.como-funciona-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+}
+
+
+.como-funciona-card .card-icon {
+    margin-bottom: 25px; /* Espaço abaixo do ícone */
+    /* Se usar <img> para ícones: */
+    /* O estilo da imagem já está no HTML (width:50px; height:50px;).
+       Para melhor prática, remova o style inline do HTML e adicione aqui: */
+}
+.como-funciona-card .card-icon img { /* Estilo para a imagem do ícone se usar <img> */
+    width: 50px;  /* Ou o tamanho que preferir */
+    height: 50px; /* Ou o tamanho que preferir */
+    /* Se seus ícones forem SVG e você quiser mudar a cor deles com CSS:
+       fill: var(--amarelo-dourado); (não funciona para PNG/JPG) */
+}
+
+/* Se usar Font Awesome (exemplo): */
+/* .como-funciona-card .card-icon .fas {
+    font-size: 2.5rem;
+    color: var(--amarelo-dourado);
+} */
+
+
+.como-funciona-card h3 {
+    font-size: 1.5rem; /* Tamanho do título do card */
+    color: var(--azul-escuro); /* Título do card na cor azul */
+    margin-bottom: 15px;
+}
+
+.como-funciona-card p {
+    font-size: 0.95rem; /* Tamanho do texto de descrição do card */
+    line-height: 1.6;
+    color: #555; /* Cor mais suave para a descrição */
+    flex-grow: 1; /* Ajuda a alinhar botões/links no final se houver */
+}
+
+/* Ajustes de Responsividade para a Seção Como Funciona (se necessário) */
+@media (max-width: 768px) {
+    .como-funciona-section .section-title h2 {
+        font-size: 2rem; /* Título da seção um pouco menor */
+        margin-bottom: 40px;
+    }
+
+    .como-funciona-grid {
+        gap: 20px; /* Espaçamento menor entre cards no mobile */
+    }
+
+    .como-funciona-card {
+        padding: 25px 20px; /* Padding interno do card menor */
+    }
+}
+
+@media (max-width: 480px) {
+    .como-funciona-card h3 {
+        font-size: 1.3rem;
+    }
+    .como-funciona-card p {
+        font-size: 0.9rem;
+    }
+}
+
+.sobre-app-section {
+    background-color: #ffffff; /* Fundo branco para a seção */
+    /* Ou se quiser um cinza bem claro: var(--cor-fundo-alternativo); */
+    padding: 70px 0;
+    overflow: hidden; /* Para evitar barras de rolagem inesperadas com animações ou imagens grandes */
+}
+
+.sobre-app-section .section-title {
+    text-align: center; /* Centraliza o título da seção */
+}
+
+.sobre-app-section .section-title h2 {
+    color: var(--azul-escuro); /* Título "Sobre o App" em azul escuro */
+    font-size: 2.4rem;
+    margin-bottom: 50px;
+    position: relative;
+    display: inline-block;
+}
+
+.sobre-app-section .section-title h2::after { /* Linha decorativa similar à seção anterior */
+    content: '';
+    display: block;
+    width: 70px;
+    height: 3px;
+    background-color: var(--amarelo-dourado);
+    margin: 15px auto 0;
+}
+
+.sobre-app-layout {
+    display: flex;
+    align-items: center; /* Alinha verticalmente as colunas */
+    gap: 50px; /* Espaço entre a coluna de texto e a de imagem */
+}
+
+.sobre-app-coluna.texto {
+    flex: 1; /* Ocupa o espaço disponível, ajustável */
+    /* Ou para uma divisão mais específica: flex-basis: 55%; */
+    padding-right: 20px; /* Pequeno espaço caso as colunas fiquem muito próximas */
+}
+
+.sobre-app-coluna.imagem {
+    flex: 1; /* Ocupa o espaço disponível */
+    /* Ou para uma divisão mais específica: flex-basis: 45%; */
+    text-align: center; /* Centraliza a imagem se ela for menor que a coluna */
+}
+
+.sobre-app-coluna.imagem img {
+    max-width: 100%; /* Garante que a imagem não ultrapasse a coluna */
+    height: auto;
+    border-radius: 12px; /* Cantos arredondados para a imagem/mockup */
+}
+
+.sobre-app-descricao {
+    font-size: 1.1rem; /* Texto descritivo um pouco maior */
+    line-height: 1.8;
+    color: #444; /* Cor de texto um pouco mais escura que o padrão #555 */
+    margin-bottom: 30px;
+}
+
+.sobre-app-coluna.texto h3 { /* "Principais Vantagens:" */
+    font-size: 1.5rem;
+    color: var(--azul-escuro);
+    margin-bottom: 20px;
+}
+
+.vantagens-lista {
+    list-style: none; /* Remove marcadores padrão da lista */
+    padding-left: 0;
+}
+
+.vantagens-lista li {
+    display: flex; /* Alinha ícone e texto na mesma linha */
+    align-items: flex-start; /* Alinha no topo se o texto tiver múltiplas linhas */
+    font-size: 1rem;
+    color: var(--cor-texto-principal);
+    margin-bottom: 18px; /* Espaço entre os itens da lista */
+    line-height: 1.6;
+}
+
+.vantagens-lista .vantagem-icone {
+    color: var(--amarelo-dourado); /* Cor do ícone (se for de fonte) */
+    margin-right: 12px; /* Espaço entre o ícone e o texto */
+    flex-shrink: 0; /* Evita que o ícone encolha */
+    /* Estilo para a imagem do ícone de check, se usar <img> */
+}
+.vantagens-lista .vantagem-icone img {
+    width: 22px; /* Ajuste o tamanho do seu ícone de check */
+    height: 22px;
+    vertical-align: middle; /* Alinhamento vertical melhor */
+}
+
+/* Opcional: Botão CTA dentro da seção Sobre */
+/* .sobre-app-cta {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+} */
+/* .btn.btn-dourado { (Defina estilos para este botão se for usar)
+    background-color: var(--amarelo-dourado);
+    color: var(--azul-escuro);
+    border-radius: 5px;
+} */
+
+
+/* Ajustes de Responsividade para a Seção Sobre o App */
+@media (max-width: 992px) { /* Ajuste para telas médias antes de quebrar totalmente */
+    .sobre-app-layout {
+        gap: 30px; /* Reduz o espaço entre colunas */
+    }
+    .sobre-app-coluna.texto {
+        padding-right: 0; /* Remove padding extra em telas menores */
+    }
+}
+
+@media (max-width: 768px) {
+    .sobre-app-section .section-title h2 {
+        font-size: 2rem;
+        margin-bottom: 40px;
+    }
+    .sobre-app-layout {
+        flex-direction: column; /* Empilha as colunas */
+        text-align: center; /* Centraliza o texto da coluna quando empilhado */
+    }
+
+    .sobre-app-coluna.texto {
+        margin-bottom: 40px; /* Espaço entre o texto e a imagem quando empilhados */
+        /* text-align: left;  Ou mantenha centralizado como acima */
+    }
+     .sobre-app-coluna.texto h3, .sobre-app-descricao {
+        text-align: left; /* Alinha textos da coluna à esquerda no mobile */
+    }
+     .vantagens-lista {
+        /* text-align: left;  Já é por padrão */
+    }
+
+    .sobre-app-coluna.imagem img {
+        max-width: 80%; /* Imagem pode ocupar menos da largura no mobile */
+        margin: 0 auto; /* Centraliza a imagem */
+    }
+}
