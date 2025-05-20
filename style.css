@@ -778,7 +778,7 @@ img {
 }
 
 .sobre-app-coluna.imagem img {
-    max-width: 100%; /* Garante que a imagem não ultrapasse a coluna */
+    max-width: 80%; /* Garante que a imagem não ultrapasse a coluna */
     height: auto;
     border-radius: 12px; /* Cantos arredondados para a imagem/mockup */
 }
@@ -871,5 +871,243 @@ img {
     .sobre-app-coluna.imagem img {
         max-width: 80%; /* Imagem pode ocupar menos da largura no mobile */
         margin: 0 auto; /* Centraliza a imagem */
+    }
+}
+
+/* Seção Para Prestadores                       */
+/* Seção Para Prestadores                       */
+.prestadores-section {
+    padding: 80px 0;
+    background-color: var(--cor-fundo-alternativo);
+}
+
+.prestadores-section .section-title {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.prestadores-section .section-title h2 {
+    color: var(--azul-escuro);
+    font-size: 2.4rem;
+    margin-bottom: 15px;
+}
+
+.prestadores-section .section-title .section-subtitle {
+    font-size: 1.1rem;
+    color: #555;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+.prestador-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    margin-bottom: 70px;
+}
+
+.prestador-feature-item:last-of-type {
+    margin-bottom: 50px;
+}
+
+.prestador-feature-coluna.texto {
+    flex: 1;
+}
+
+.prestador-feature-coluna.imagem {
+    flex: 1;
+    text-align: center;
+}
+
+.prestador-feature-coluna.imagem img {
+    max-width: 70%;
+    border-radius: 10px;
+}
+
+/* Layout reverso (imagem à esquerda, texto à direita) */
+.prestador-feature-item.layout-reverso {
+    flex-direction: row-reverse;
+}
+
+/* Layout com imagem empilhada abaixo do texto */
+.prestador-feature-item.layout-stacked-image {
+    flex-direction: column;
+    text-align: center;
+    gap: 30px;
+}
+
+.prestador-feature-item.layout-stacked-image .prestador-feature-coluna.texto {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.prestador-feature-item.layout-stacked-image .prestador-feature-coluna.imagem {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.prestador-feature-item.layout-stacked-image .prestador-feature-coluna.imagem img {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    display: block;
+}
+
+.prestador-feature-coluna .feature-numero {
+    display: inline-block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--amarelo-dourado);
+    background-color: rgba(223, 169, 51, 0.1);
+    padding: 6px 12px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+}
+
+.prestador-feature-coluna h3 {
+    font-size: 1.1rem;
+    color: var(--azul-escuro);
+    margin-bottom: 15px;
+}
+
+.prestador-feature-coluna p {
+    font-size: 1.1rem;
+    color: #444;
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+.prestador-feature-coluna ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.prestador-feature-coluna ul li {
+    font-size: 1.1rem;
+    color: var(--cor-texto-principal);
+    margin-bottom: 10px;
+    padding-left: 25px; /* Reduzi o padding para deixar o check mais próximo */
+    position: relative;
+}
+
+.prestador-feature-coluna ul li::before {
+    content: '\2713';
+    position: absolute;
+    left: 5px; /* Ajustei a posição do check */
+    top: 1px;
+    color: var(--amarelo-dourado);
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.prestador-cta {
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid #ddd;
+    margin-top: 40px;
+}
+
+.prestador-cta p {
+    font-size: 1.2rem;
+    color: var(--azul-escuro);
+    font-weight: 500;
+    margin-bottom: 25px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.btn.btn-dourado {
+    background-color: var(--amarelo-dourado);
+    color: var(--azul-escuro);
+    border: 1px solid var(--amarelo-dourado);
+}
+
+.btn.btn-dourado:hover {
+    background-color: var(--amarelo-dourado-hover);
+    border-color: var(--amarelo-dourado-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(223, 169, 51, 0.25);
+}
+
+/* Responsividade para Seção Prestadores */
+@media (max-width: 992px) {
+    .prestador-feature-item,
+    .prestador-feature-item.layout-reverso {
+        gap: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .prestadores-section .section-title h2 {
+        font-size: 2rem;
+    }
+    .prestadores-section .section-title .section-subtitle {
+        font-size: 1rem;
+    }
+
+    .prestador-feature-item {
+        flex-direction: column;
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    /* CORREÇÃO: Garante que no mobile o layout-reverso mantenha a imagem embaixo */
+    .prestador-feature-item.layout-reverso {
+        flex-direction: column;
+    }
+    
+    /* CORREÇÃO: Garante que a imagem venha depois do texto no layout-reverso */
+    .prestador-feature-item.layout-reverso .prestador-feature-coluna.imagem {
+        order: 1; /* Coloca a imagem depois do texto */
+    }
+
+    .prestador-feature-item.layout-stacked-image .prestador-feature-coluna.texto h3,
+    .prestador-feature-coluna h3 {
+        text-align: center;
+    }
+
+    .prestador-feature-coluna.texto,
+    .prestador-feature-coluna.imagem {
+        flex-basis: 100%;
+        padding-left: 0;
+        padding-right: 0;
+        text-align: left;
+    }
+    
+    .prestador-feature-coluna.imagem {
+        margin-bottom: 25px;
+        text-align: center;
+    }
+    
+    .prestador-feature-coluna.imagem img {
+        max-width: 90%;
+    }
+
+    .prestador-feature-coluna .feature-numero {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: fit-content;
+    }
+    
+    /* Ajuste para os checks no mobile */
+    .prestador-feature-coluna ul li {
+        padding-left: 22px; /* Reduz um pouco mais no mobile */
+    }
+    
+    .prestador-feature-coluna ul li::before {
+        left: 3px; /* Ajusta posição do check no mobile */
     }
 }
