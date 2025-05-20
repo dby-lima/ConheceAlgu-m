@@ -37,12 +37,23 @@
                 <button class="search-button">Buscar</button>
             </div>
         </div>
+        
+        <div class="search-container">
+                <input type="text" class="search-bar" placeholder="Qual serviço você está buscando? Ex: Eletricista, Encanador...">
+                <div class="filter-widget">
+                    <select name="cidade" id="cidade-select">
+                        <option value="">Escolha a cidade</option>
+                        </select>
+                </div>
+                <div id="search-validation-message" class="search-validation-message" style="display: none;"></div>
+                <button class="search-button">Buscar</button>
+            </div>
     </main>
 
     <section id="servicos" class="services-section">
         <div class="container">
-            <h2>Serviços em Destaque</h2>
-            <div class="services-grid">
+           <h2 id="servicos-section-title">Serviços em Destaque</h2>
+            <div class="services-grid" id="servicos-grid-content">
                <div class="service-card">
                     <div class="card-header-title">
                         <h3 class="service-title">Encanador Residencial</h3>
