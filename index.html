@@ -25,21 +25,9 @@
             <p class="subtitle">Serviços locais de confiança, avaliados pela comunidade.</p>
             <a href="#download" class="cta-button">Quero conhecer o App!</a>
 
-            <div class="search-container">
-                <input type="text" class="search-bar" placeholder="Qual serviço você está buscando? Ex: Eletricista, Encanador...">
-                <div class="filter-widget">
-                    <select name="cidade" id="cidade-select">
-                        <option value="">Escolha a cidade</option>
-                        <option value="cidade1">Cidade Exemplo 1</option>
-                        <option value="cidade2">Cidade Exemplo 2</option>
-                        </select>
-                </div>
-                <button class="search-button">Buscar</button>
-            </div>
-        </div>
-        
-        <div class="search-container">
-                <input type="text" class="search-bar" placeholder="Qual serviço você está buscando? Ex: Eletricista, Encanador...">
+        <div class="search-container" style="position: relative;"> <input type="text" class="search-bar" placeholder="Qual serviço você está buscando? Ex: Eletricista, Encanador...">
+                <div id="search-suggestions" class="search-suggestions-list" style="display: none;">
+                    </div>
                 <div class="filter-widget">
                     <select name="cidade" id="cidade-select">
                         <option value="">Escolha a cidade</option>

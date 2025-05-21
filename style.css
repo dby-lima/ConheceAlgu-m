@@ -1132,3 +1132,45 @@ img {
     color: var(--amarelo-dourado); /* Texto dourado */
     border: 1px solid rgba(223, 169, 51, 0.25);
 }
+
+.search-suggestions-list {
+    position: absolute; /* Posicionamento absoluto em relação ao .search-container */
+    top: 100%; /* Começa logo abaixo do elemento pai (assumindo que o input é o primeiro ou tem altura definida) */
+    /* Se o input não for o primeiro elemento ou se a altura variar, pode ser preciso ajustar 'top' via JS ou
+       colocar o input e a lista de sugestões em um wrapper div com position:relative.
+       Por enquanto, vamos assumir que 'top: 100%' do .search-bar (ou do container do search-bar) funciona.
+       Para ser mais preciso em relação ao .search-bar: */
+    /* top: calc(var(--input-height, 50px) + 2px); Ajustar --input-height conforme necessário */
+    left: 0;
+    right: 0; /* Ocupa a largura do .search-container */
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-top: none; /* Evita borda dupla com o input, se estiver colado */
+    border-radius: 0 0 8px 8px; /* Cantos arredondados apenas na parte inferior */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 999; /* Para ficar sobre outros elementos próximos */
+    max-height: 250px; /* Altura máxima, com scroll se houver muitas sugestões */
+    overflow-y: auto;
+}
+
+.search-suggestions-list .suggestion-item {
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    color: var(--cor-texto-principal);
+    cursor: pointer;
+    border-bottom: 1px solid #eee; /* Linha separadora sutil */
+    text-align: left;
+}
+
+.search-suggestions-list .suggestion-item:last-child {
+    border-bottom: none; /* Remove a borda do último item */
+}
+
+.search-suggestions-list .suggestion-item:hover {
+    background-color: #f0f0f0; /* Cor de fundo no hover */
+}
+
+.search-suggestions-list .suggestion-item strong { /* Para destacar o termo buscado na sugestão */
+    font-weight: 700;
+    color: var(--azul-escuro);
+}

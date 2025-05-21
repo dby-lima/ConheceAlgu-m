@@ -2,11 +2,150 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     const searchValidationMessageEl = document.getElementById('search-validation-message');
+    const searchSuggestionsEl = document.getElementById('search-suggestions'); // Novo seletor
     let htmlDestaquesOriginal = ''; // Variável para guardar o HTML dos destaques
+    
     const searchButton = document.querySelector('.search-button');
     const searchBar = document.querySelector('.search-bar');
     const citySelect = document.querySelector('#cidade-select');
+    function showSearchValidationMessage(message) {
+        if (searchValidationMessageEl) {
+            searchValidationMessageEl.textContent = message;
+            searchValidationMessageEl.style.display = 'block';
+            // Para animação (se adicionou as classes .visible no CSS):
+            // setTimeout(() => searchValidationMessageEl.classList.add('visible'), 10); 
+        }
+    }
 
+    function hideSearchValidationMessage() {
+        if (searchValidationMessageEl) {
+            searchValidationMessageEl.style.display = 'none';
+            searchValidationMessageEl.textContent = '';
+            // Para animação:
+            // searchValidationMessageEl.classList.remove('visible');
+        }
+    }
+     function debounce(func, delay) {
+        let timeoutId;
+        return function(...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
+    }
+
+    async function fetchAndRenderSuggestions() {
+        const filtroParcial = searchBar.value.trim();
+        const cidadeAtual = citySelect.value;
+
+        // Se não há cidade selecionada, mas o usuário começou a digitar:
+        if (filtroParcial.length >= 3 && !cidadeAtual) {
+            searchSuggestionsEl.innerHTML = '<div class="suggestion-item" style="color: #777; cursor: default;">Selecione uma cidade para ver sugestões.</div>';
+            searchSuggestionsEl.style.display = 'block';
+            return;
+        }
+
+        // Se o filtro for muito curto OU a cidade ainda não estiver selecionada (após a mensagem acima), limpa e esconde
+        if (filtroParcial.length < 3 || !cidadeAtual) {
+            searchSuggestionsEl.innerHTML = '';
+            searchSuggestionsEl.style.display = 'none';
+            return;
+        }
+
+        try {
+            const response = await fetch(supabaseSuggestUrl, {
+                method: 'POST',
+                headers: {
+                    'apikey': supabaseApiKey,
+                    'Authorization': `Bearer ${supabaseApiKey}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify({
+                    filtro_parcial: filtroParcial,
+                    cidade_usuario_atual: cidadeAtual
+                })
+            });
+
+            if (!response.ok) {
+                console.error('Erro ao buscar sugestões:', response.statusText);
+                searchSuggestionsEl.style.display = 'none';
+                return;
+            }
+
+            const sugestoes = await response.json(); // Retorna [{sugestao: "texto", prioridade: 1}, ...]
+
+            searchSuggestionsEl.innerHTML = ''; // Limpa sugestões anteriores
+            if (sugestoes && sugestoes.length > 0) {
+                sugestoes.forEach(item => {
+                    const div = document.createElement('div');
+                    div.classList.add('suggestion-item');
+                    
+                    // Para destacar o termo buscado na sugestão (opcional, mas melhora UX)
+                    const regex = new RegExp(`(${filtroParcial})`, 'gi');
+                    const highlightedText = item.sugestao.replace(regex, '<strong>$1</strong>');
+                    div.innerHTML = highlightedText;
+
+                    div.addEventListener('click', () => {
+                        searchBar.value = item.sugestao; // Preenche a barra de busca
+                        searchSuggestionsEl.style.display = 'none'; // Esconde sugestões
+                        searchSuggestionsEl.innerHTML = '';
+                        // Opcional: disparar a busca principal automaticamente
+                        if (searchButton) {
+                           // searchButton.click(); // Descomente se quiser buscar automaticamente
+                        }
+                    });
+                    searchSuggestionsEl.appendChild(div);
+                });
+                searchSuggestionsEl.style.display = 'block';
+            } else {
+                searchSuggestionsEl.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Erro na requisição de sugestões:', error);
+            searchSuggestionsEl.style.display = 'none';
+        }
+    }
+
+    if (searchBar) {
+        searchBar.addEventListener('input', () => {
+            if (searchBar.value.trim().length === 0) { // Se esvaziar o campo, esconde sugestões
+                searchSuggestionsEl.style.display = 'none';
+                searchSuggestionsEl.innerHTML = '';
+            } else {
+                debouncedFetchSuggestions();
+            }
+        });
+
+        // Esconder sugestões se o usuário clicar fora (blur)
+        searchBar.addEventListener('blur', () => {
+            // Pequeno delay para permitir o clique na sugestão antes de esconder
+            setTimeout(() => {
+                if (!searchSuggestionsEl.matches(':hover')) { // Não esconde se o mouse estiver sobre as sugestões
+                    searchSuggestionsEl.style.display = 'none';
+                }
+            }, 150);
+        });
+        
+        // Garantir que as sugestões apareçam ao focar, se houver texto e condições atendidas
+        searchBar.addEventListener('focus', () => {
+            if (searchBar.value.trim().length >= 3 && citySelect.value) {
+                debouncedFetchSuggestions(); // Ou fetchAndRenderSuggestions() se não quiser debounce no focus
+            }
+        });
+    }
+
+    // Opcional: Esconder sugestões ao pressionar a tecla 'Escape'
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            if (searchSuggestionsEl) {
+                searchSuggestionsEl.style.display = 'none';
+            }
+        }
+    });
+
+    const debouncedFetchSuggestions = debounce(fetchAndRenderSuggestions, 400);
     // IDs para a seção de serviços que será atualizada
     const servicosSection = document.getElementById('servicos'); // A seção inteira
     const servicosTitle = document.getElementById('servicos-section-title'); // O H2 dentro da seção
@@ -23,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const supabaseCidadesUrl = 'https://tptihbousfgodqkvdqki.supabase.co/rest/v1/cidades_unicas?select=cidade,uf&order=cidade.asc'; // Adicionamos uf e ordenamos
     
     const supabaseApiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwdGloYm91c2Znb2Rxa3ZkcWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk1MzQ0NDYsImV4cCI6MjA0NTExMDQ0Nn0.fVvZOnzVrLJxUBEMDIGU-QVpdmDb_6_9NKubKDFa72A';
-
+    const supabaseSuggestUrl = 'https://tptihbousfgodqkvdqki.supabase.co/rest/v1/rpc/sugerir_termos_pesquisa';
     // --- Função para carregar cidades no dropdown ---
     async function carregarCidades() {
         if (!citySelect) return;
@@ -81,7 +220,40 @@ document.addEventListener('DOMContentLoaded', () => {
             citySelect.appendChild(optionError);
         }
     }
+    async function carregarServicosDestaque() {
+        if (!servicosGrid || !servicosTitle) return;
 
+        servicosTitle.textContent = "Serviços em Destaque";
+        servicosGrid.innerHTML = '<p style="color: var(--cor-texto-principal); text-align:center;">Carregando destaques...</p>';
+
+        const urlDestaques = `${supabaseCidadesUrl.split('/cidades_unicas')[0]}/view_servicos_completa?select=*,idpessoaservprod,avaliacao_media,total_avaliacoes&order=avaliacao_media.desc,total_avaliacoes.desc&limit=6`;
+
+        try {
+            const responseDestaques = await fetch(urlDestaques, {
+                method: 'GET',
+                headers: { 'apikey': supabaseApiKey, 'Authorization': `Bearer ${supabaseApiKey}` }
+            });
+
+            if (!responseDestaques.ok) {
+                console.error('Erro ao buscar serviços em destaque:', responseDestaques.statusText);
+                servicosGrid.innerHTML = '<p style="color: red; text-align:center;">Não foi possível carregar os destaques.</p>';
+                return;
+            }
+
+            const destaquesComAvaliacao = await responseDestaques.json();
+
+            renderizarServicosBuscados(destaquesComAvaliacao);
+
+            // Se renderizarServicosBuscados não tratar o caso de array vazio para esta mensagem específica:
+            if (!destaquesComAvaliacao || destaquesComAvaliacao.length === 0) {
+                servicosGrid.innerHTML = `<p style="color: var(--cor-texto-principal); text-align:center;">Nenhum serviço em destaque no momento.</p>`;
+            }
+
+        } catch (error) {
+            console.error('Erro na requisição de serviços em destaque:', error);
+            servicosGrid.innerHTML = '<p style="color: red; text-align:center;">Falha ao carregar destaques.</p>';
+        }
+    }
     // Chamar a função para carregar cidades quando a página carregar
     carregarCidades();
 
@@ -148,24 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const servicosEncontrados = await response.json();
                 renderizarServicosBuscados(servicosEncontrados);
-                
-function showSearchValidationMessage(message) {
-    if (searchValidationMessageEl) {
-        searchValidationMessageEl.textContent = message;
-        searchValidationMessageEl.style.display = 'block';
-        // Para animação (se adicionou as classes .visible no CSS):
-        // setTimeout(() => searchValidationMessageEl.classList.add('visible'), 10); 
-    }
-}
 
-function hideSearchValidationMessage() {
-    if (searchValidationMessageEl) {
-        searchValidationMessageEl.style.display = 'none';
-        searchValidationMessageEl.textContent = '';
-        // Para animação:
-        // searchValidationMessageEl.classList.remove('visible');
-    }
-}
             } catch (error) {
                 console.error('Erro ao buscar serviços:', error);
                 servicosGrid.innerHTML = `<p style="color: red; text-align:center;">Ocorreu um erro ao buscar os serviços. Tente novamente.</p>`;
@@ -179,22 +334,29 @@ function hideSearchValidationMessage() {
     }
 
     function renderizarServicosBuscados(servicos) {
-        servicosGrid.innerHTML = ''; // Limpa mensagem de "buscando" ou resultados antigos
+    servicosGrid.innerHTML = ''; 
 
-        if (!servicos || servicos.length === 0) {
-            servicosGrid.innerHTML = `<p style="color: var(--cor-texto-principal); text-align:center;">Nenhum serviço encontrado para os critérios informados.</p>`;
-            return;
+    if (!servicos || servicos.length === 0) {
+        servicosGrid.innerHTML = `<p style="color: var(--cor-texto-principal); text-align:center;">Nenhum serviço encontrado ou disponível no momento.</p>`;
+        return;
+    }
+
+    servicos.forEach(servico => {
+        let precoFormatado = 'N/D';
+        if (servico.valorFixo) {
+            precoFormatado = `R$ ${parseFloat(servico.valorFixo).toFixed(2).replace('.', ',')}`;
+        } else if (servico.valorMin && servico.valorMax) {
+            precoFormatado = `R$ <span class="math-inline">\{parseFloat\(servico\.valorMin\)\.toFixed\(2\)\.replace\('\.', ','\)\} \- R</span> ${parseFloat(servico.valorMax).toFixed(2).replace('.', ',')}`;
+        } else if (servico.precotipo) {
+            precoFormatado = servico.precotipo;
         }
 
-        servicos.forEach(servico => {
-            let precoFormatado = 'N/D';
-            if (servico.valorFixo) { // "valorFixo" com F maiúsculo conforme sua view no Supabase
-                precoFormatado = `R$ ${parseFloat(servico.valorFixo).toFixed(2).replace('.', ',')}`;
-            } else if (servico.valorMin && servico.valorMax) { // Idem para valorMin e valorMax
-                precoFormatado = `R$ ${parseFloat(servico.valorMin).toFixed(2).replace('.', ',')} - R$ ${parseFloat(servico.valorMax).toFixed(2).replace('.', ',')}`;
-            } else if (servico.precotipo) {
-                precoFormatado = servico.precotipo;
-            }
+        // Lógica ATUALIZADA para exibir a avaliação
+        let ratingDisplay = 'Novo'; // Mostrar 'Novo' se não houver avaliações
+        // A view já trata COALESCE para 0, então avaliacao_media e total_avaliacoes serão no mínimo 0.
+        if (servico.total_avaliacoes > 0) {
+            ratingDisplay = `<span class="math-inline">\{parseFloat\(servico\.avaliacao\_media\)\.toFixed\(1\)\} \(</span>{servico.total_avaliacoes} ${servico.total_avaliacoes === 1 ? 'aval.' : 'avaliações'})`;
+        }
 
             const cardHTML = `
                 <div class="service-card">
