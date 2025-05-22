@@ -1,5 +1,4 @@
 // public/script.js
-
 document.addEventListener('DOMContentLoaded', () => {
     const searchValidationMessageEl = document.getElementById('search-validation-message');
     const searchSuggestionsEl = document.getElementById('search-suggestions'); // Novo seletor
@@ -109,41 +108,61 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (searchBar) {
-        searchBar.addEventListener('input', () => {
-            if (searchBar.value.trim().length === 0) { // Se esvaziar o campo, esconde sugestões
-                searchSuggestionsEl.style.display = 'none';
-                searchSuggestionsEl.innerHTML = '';
-            } else {
-                debouncedFetchSuggestions();
-            }
-        });
-
-        // Esconder sugestões se o usuário clicar fora (blur)
-        searchBar.addEventListener('blur', () => {
-            // Pequeno delay para permitir o clique na sugestão antes de esconder
-            setTimeout(() => {
-                if (!searchSuggestionsEl.matches(':hover')) { // Não esconde se o mouse estiver sobre as sugestões
-                    searchSuggestionsEl.style.display = 'none';
-                }
-            }, 150);
-        });
-        
-        // Garantir que as sugestões apareçam ao focar, se houver texto e condições atendidas
-        searchBar.addEventListener('focus', () => {
-            if (searchBar.value.trim().length >= 3 && citySelect.value) {
-                debouncedFetchSuggestions(); // Ou fetchAndRenderSuggestions() se não quiser debounce no focus
-            }
-        });
-    }
-
-    // Opcional: Esconder sugestões ao pressionar a tecla 'Escape'
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-            if (searchSuggestionsEl) {
-                searchSuggestionsEl.style.display = 'none';
-            }
+    searchBar.addEventListener('input', () => {
+        if (searchBar.value.trim().length === 0) { // Se esvaziar o campo, esconde sugestões
+            searchSuggestionsEl.style.display = 'none';
+            searchSuggestionsEl.innerHTML = '';
+        } else {
+            debouncedFetchSuggestions();
         }
     });
+
+    // Esconder sugestões se o usuário clicar fora (blur)
+    searchBar.addEventListener('blur', () => {
+        // Pequeno delay para permitir o clique na sugestão antes de esconder
+        setTimeout(() => {
+            if (!searchSuggestionsEl.matches(':hover')) { // Não esconde se o mouse estiver sobre as sugestões
+                searchSuggestionsEl.style.display = 'none';
+            }
+        }, 150);
+    });
+    
+    // Garantir que as sugestões apareçam ao focar, se houver texto e condições atendidas
+    searchBar.addEventListener('focus', () => {
+        if (searchBar.value.trim().length >= 3 && citySelect.value) {
+            debouncedFetchSuggestions(); // Ou fetchAndRenderSuggestions() se não quiser debounce no focus
+        }
+    });
+
+    // NOVA LÓGICA PARA O "ENTER" KEY
+        searchBar.addEventListener('keydown', (event) => {
+            // Verifica se a tecla pressionada foi "Enter"
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                event.preventDefault(); // Previne qualquer comportamento padrão do Enter (ex: submeter formulário, se houvesse um)
+                if (searchSuggestionsEl) { // Verifica se o elemento existe
+                    searchSuggestionsEl.style.display = 'none';
+                    searchSuggestionsEl.innerHTML = ''; // Limpa o conteúdo das sugestões
+                    }
+                // Simula um clique no botão "Buscar"
+                // Isso garantirá que toda a lógica de validação (cidade selecionada) e
+                // a lógica de busca (ou restauração dos destaques) sejam executadas.
+                if (searchButton) {
+                    searchButton.click();
+                }
+            }
+        });
+        // FIM DA NOVA LÓGICA PARA O "ENTER" KEY
+    }
+
+        // Opcional: Esconder sugestões ao pressionar a tecla 'Escape'
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                if (searchSuggestionsEl) {
+                    searchSuggestionsEl.style.display = 'none';
+                }
+            }
+        });
+    
 
     const debouncedFetchSuggestions = debounce(fetchAndRenderSuggestions, 400);
     // IDs para a seção de serviços que será atualizada
@@ -159,10 +178,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // URL e Chave API para a função buscar_servicos (POST)
     const supabaseRpcUrl = 'https://tptihbousfgodqkvdqki.supabase.co/rest/v1/rpc/buscar_servicos';
     // URL e Chave API para a view cidades_unicas (GET)
-    const supabaseCidadesUrl = 'https://tptihbousfgodqkvdqki.supabase.co/rest/v1/cidades_unicas?select=cidade,uf&order=cidade.asc'; // Adicionamos uf e ordenamos
-    
+    const supabaseCidadesUrl = 'https://tptihbousfgodqkvdqki.supabase.co/rest/v1/cidades_unicas?select=cidade,uf&order=cidade.asc';
     const supabaseApiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwdGloYm91c2Znb2Rxa3ZkcWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk1MzQ0NDYsImV4cCI6MjA0NTExMDQ0Nn0.fVvZOnzVrLJxUBEMDIGU-QVpdmDb_6_9NKubKDFa72A';
     const supabaseSuggestUrl = 'https://tptihbousfgodqkvdqki.supabase.co/rest/v1/rpc/sugerir_termos_pesquisa';
+    
     // --- Função para carregar cidades no dropdown ---
     async function carregarCidades() {
         if (!citySelect) return;
@@ -221,41 +240,83 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     async function carregarServicosDestaque() {
-        if (!servicosGrid || !servicosTitle) return;
+        console.log("1. Iniciando carregarServicosDestaque..."); // Novo Log
+
+        if (!servicosGrid || !servicosTitle) {
+            console.error("ERRO: servicosGrid ou servicosTitle não encontrado no DOM."); // Novo Log
+            return;
+        }
 
         servicosTitle.textContent = "Serviços em Destaque";
         servicosGrid.innerHTML = '<p style="color: var(--cor-texto-principal); text-align:center;">Carregando destaques...</p>';
+        console.log("2. Mensagem 'Carregando destaques...' exibida."); // Novo Log
 
-        const urlDestaques = `${supabaseCidadesUrl.split('/cidades_unicas')[0]}/view_servicos_completa?select=*,idpessoaservprod,avaliacao_media,total_avaliacoes&order=avaliacao_media.desc,total_avaliacoes.desc&limit=6`;
+        const limiteInicialBusca = 15;
+        const limiteFinalExibicao = 6;
+
+        // Confirme que supabaseCidadesUrl e supabaseApiKey estão definidas e corretas no escopo.
+        // console.log("Supabase API Key:", supabaseApiKey); // Descomente para verificar a chave se suspeitar dela
+        const urlDestaques = `${supabaseCidadesUrl.split('/cidades_unicas')[0]}/view_servicos_completa?select=*,idpessoaservprod,avaliacao_media,total_avaliacoes&order=avaliacao_media.desc,total_avaliacoes.desc&limit=${limiteInicialBusca}`;
+        console.log("3. URL para buscar destaques:", urlDestaques); // Novo Log
 
         try {
             const responseDestaques = await fetch(urlDestaques, {
                 method: 'GET',
                 headers: { 'apikey': supabaseApiKey, 'Authorization': `Bearer ${supabaseApiKey}` }
             });
+            console.log("4. Resposta da API recebida, status:", responseDestaques.status); // Novo Log
 
             if (!responseDestaques.ok) {
-                console.error('Erro ao buscar serviços em destaque:', responseDestaques.statusText);
-                servicosGrid.innerHTML = '<p style="color: red; text-align:center;">Não foi possível carregar os destaques.</p>';
+                console.error('Erro ao buscar serviços em destaque:', responseDestaques.status, responseDestaques.statusText);
+                const errorBody = await responseDestaques.text(); // Tenta ler o corpo do erro
+                console.error("Corpo do erro da API:", errorBody);
+                servicosGrid.innerHTML = '<p style="color: red; text-align:center;">Não foi possível carregar os destaques. Verifique o console.</p>';
                 return;
             }
+            
+            let destaquesCompletos = await responseDestaques.json();
+            console.log("5. Destaques recebidos da API:", destaquesCompletos); // Novo Log
 
-            const destaquesComAvaliacao = await responseDestaques.json();
+            if (!destaquesCompletos || destaquesCompletos.length === 0) {
+                console.log("Nenhum destaque completo retornado pela API."); // Novo Log
+                servicosGrid.innerHTML = `<p style="color: var(--cor-texto-principal); text-align:center;">Nenhum serviço em destaque no momento.</p>`;
+                return; // IMPORTANTE: Adicionar este return para sair se não houver dados.
+            }
 
-            renderizarServicosBuscados(destaquesComAvaliacao);
+            const servicosUnicosDestaque = [];
+            const titulosAdicionados = new Set();
 
-            // Se renderizarServicosBuscados não tratar o caso de array vazio para esta mensagem específica:
-            if (!destaquesComAvaliacao || destaquesComAvaliacao.length === 0) {
+            for (const servico of destaquesCompletos) {
+                if (servicosUnicosDestaque.length >= limiteFinalExibicao) {
+                    break; 
+                }
+                const tituloNormalizado = servico.titulo ? servico.titulo.trim().toLowerCase() : ''; 
+                if (servico.titulo && !titulosAdicionados.has(tituloNormalizado)) { // Adicionado check se servico.titulo existe
+                    servicosUnicosDestaque.push(servico);
+                    titulosAdicionados.add(tituloNormalizado);
+                }
+            }
+            console.log("6. Serviços únicos filtrados:", servicosUnicosDestaque); // Novo Log
+            
+            if (servicosUnicosDestaque.length === 0 && destaquesCompletos.length > 0) {
+                console.log("Nenhum serviço com título único encontrado, usando fallback."); // Novo Log
+                renderizarServicosBuscados(destaquesCompletos.slice(0, limiteFinalExibicao));
+            } else if (servicosUnicosDestaque.length > 0) { // Modificado para else if
+                renderizarServicosBuscados(servicosUnicosDestaque);
+            } else { // Se ambos são vazios (já tratado pelo return anterior, mas como segurança)
+                console.log("Nenhum serviço para renderizar após filtros."); // Novo Log
                 servicosGrid.innerHTML = `<p style="color: var(--cor-texto-principal); text-align:center;">Nenhum serviço em destaque no momento.</p>`;
             }
 
         } catch (error) {
-            console.error('Erro na requisição de serviços em destaque:', error);
-            servicosGrid.innerHTML = '<p style="color: red; text-align:center;">Falha ao carregar destaques.</p>';
+            console.error('Erro CRÍTICO na requisição ou processamento de serviços em destaque:', error);
+            servicosGrid.innerHTML = '<p style="color: red; text-align:center;">Falha crítica ao carregar destaques. Verifique o console.</p>';
         }
     }
+
     // Chamar a função para carregar cidades quando a página carregar
     carregarCidades();
+    carregarServicosDestaque();
 
     // --- Lógica da Busca de Serviços (modificada) ---
     if (searchButton) {
@@ -291,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let tituloBusca = '';
             if (filtro && cidadeSelecionada) {
-                tituloBusca = `Resultados para "${filtro}" em ${nomeCidadeDisplay.split(' - ')[0]}`;
+                tituloBusca = `Encontre ${filtro} em ${nomeCidadeDisplay.split(' - ')[0]}`;
             } else if (cidadeSelecionada) { // Filtro de texto pode estar vazio, mas cidade selecionada
                 tituloBusca = `Serviços em ${nomeCidadeDisplay.split(' - ')[0]}`;
             }
@@ -333,7 +394,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function formatSinglePrice(valueString) {
+    if (!valueString || valueString.trim() === "") return null; // Retorna null se vazio
+    const number = parseFloat(valueString);
+    if (isNaN(number)) return null; // Retorna null se não for um número válido
+    return `R$ ${number.toFixed(2).replace('.', ',')}`;
+    }
+
     function renderizarServicosBuscados(servicos) {
+    console.log("Renderizando serviços, dados recebidos:", servicos); // Novo Log
+   
     servicosGrid.innerHTML = ''; 
 
     if (!servicos || servicos.length === 0) {
@@ -342,22 +412,66 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     servicos.forEach(servico => {
-        let precoFormatado = 'N/D';
-        if (servico.valorFixo) {
-            precoFormatado = `R$ ${parseFloat(servico.valorFixo).toFixed(2).replace('.', ',')}`;
-        } else if (servico.valorMin && servico.valorMax) {
-            precoFormatado = `R$ <span class="math-inline">\{parseFloat\(servico\.valorMin\)\.toFixed\(2\)\.replace\('\.', ','\)\} \- R</span> ${parseFloat(servico.valorMax).toFixed(2).replace('.', ',')}`;
-        } else if (servico.precotipo) {
-            precoFormatado = servico.precotipo;
-        }
+        console.log('Dados do serviço para avaliação:', 
+        { 
+            titulo: servico.titulo, 
+            idpessoaservprod: servico.idpessoaservprod, // Para identificar o serviço
+            avaliacao_media_recebida: servico.avaliacao_media, 
+            tipo_avaliacao_media: typeof servico.avaliacao_media,
+            total_avaliacoes_recebido: servico.total_avaliacoes,
+            tipo_total_avaliacoes: typeof servico.total_avaliacoes
+            }
+        );
+
+        let precoFormatado = 'Valor a combinar'; // Define um valor padrão inicial
+
+            // Usamos a função auxiliar para tentar formatar cada tipo de valor numérico
+            const valorFixoFormatado = formatSinglePrice(servico.valorFixo);
+            const valorMinFormatado = formatSinglePrice(servico.valorMin);
+            const valorMaxFormatado = formatSinglePrice(servico.valorMax);
+
+            // Variável para o texto do precotipo, tratando se for null ou só espaços
+            const tipoDePrecoTexto = servico.precotipo ? servico.precotipo.trim() : "";
+
+            if (valorFixoFormatado) {
+                // 1. Se existe um valor fixo formatado
+                precoFormatado = valorFixoFormatado;
+            } else if (valorMinFormatado && valorMaxFormatado) {
+                // 2. Se existem valor mínimo E máximo formatados
+                precoFormatado = `${valorMinFormatado} - ${valorMaxFormatado}`;
+            } else if (valorMinFormatado) {
+                // 3. Se existe APENAS o valor mínimo formatado
+                precoFormatado = `A partir de ${valorMinFormatado}`;
+            } else if (valorMaxFormatado) {
+                // 4. Se existe APENAS o valor máximo formatado
+                precoFormatado = `Até ${valorMaxFormatado}`;
+            } else if (tipoDePrecoTexto === "Valor variável") {
+                // 5. Se NENHUM valor numérico foi encontrado (fixo, min, max são null/inválidos)
+                // E o precotipo é exatamente "Valor variável"
+                precoFormatado = "Valor a combinar"; // Sobrescreve "Valor variável"
+            } else if (tipoDePrecoTexto !== "") {
+                // 6. Se NENHUM valor numérico, mas existe outro texto no precotipo (ex: "Sob consulta")
+                precoFormatado = tipoDePrecoTexto;
+            }
 
         // Lógica ATUALIZADA para exibir a avaliação
-        let ratingDisplay = 'Novo'; // Mostrar 'Novo' se não houver avaliações
-        // A view já trata COALESCE para 0, então avaliacao_media e total_avaliacoes serão no mínimo 0.
-        if (servico.total_avaliacoes > 0) {
-            ratingDisplay = `<span class="math-inline">\{parseFloat\(servico\.avaliacao\_media\)\.toFixed\(1\)\} \(</span>{servico.total_avaliacoes} ${servico.total_avaliacoes === 1 ? 'aval.' : 'avaliações'})`;
-        }
+       let ratingDisplay = 'Novo'; // Default se não houver avaliações
 
+            // Os nomes dos campos vindos da sua view são "avaliacao_media" e "total_avaliacoes"
+            const totalAvaliacoesNum = parseInt(servico.total_avaliacoes, 10);
+            const mediaAvaliacaoNum = parseFloat(servico.avaliacao_media);
+
+            if (!isNaN(totalAvaliacoesNum) && totalAvaliacoesNum > 0) {
+                if (!isNaN(mediaAvaliacaoNum)) {
+                    ratingDisplay = `${mediaAvaliacaoNum.toFixed(1)} (${totalAvaliacoesNum} ${totalAvaliacoesNum === 1 ? 'aval.' : 'avaliações'})`;
+                } else {
+                    // Se tem contagem mas a média não é um número (improvável com a view atualizada)
+                    ratingDisplay = `(${totalAvaliacoesNum} ${totalAvaliacoesNum === 1 ? 'aval.' : 'avaliações'}) - Média Indisp.`;
+                }
+            }
+            // Se totalAvaliacoesNum for 0 ou NaN, ratingDisplay permanecerá 'Novo'
+
+            // A montagem do cardHTML continua a mesma, usando ${ratingDisplay}
             const cardHTML = `
                 <div class="service-card">
                     <div class="card-header-title">
@@ -378,8 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="card-footer">
                         <div class="service-rating">
                             <span class="star-icon">&#9733;</span>
-                            <span>--</span> 
-                        </div>
+                            <span>${ratingDisplay}</span> </div>
                         <span class="status-badge ${servico.servicoAtivo ? 'disponivel' : 'indisponivel'}">
                             ${servico.servicoAtivo ? 'Disponível' : 'Indisponível'}
                         </span>
