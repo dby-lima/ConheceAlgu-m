@@ -7,6 +7,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchButton = document.querySelector('.search-button');
     const searchBar = document.querySelector('.search-bar');
     const citySelect = document.querySelector('#cidade-select');
+    const modalOverlay = document.getElementById('service-detail-modal');
+    const modalCloseButton = document.getElementById('modal-close-button');
+    const modalServiceTitle = document.getElementById('modal-service-title');
+    const modalProviderName = document.getElementById('modal-provider-name');
+    const modalServicePrice = document.getElementById('modal-service-price');
+    const modalServiceRating = document.getElementById('modal-service-rating');
+    const modalServiceCity = document.getElementById('modal-service-city');
+    const modalServiceEmiteNf = document.getElementById('modal-service-emite-nf');
+    const modalServiceDescription = document.getElementById('modal-service-description');
+    const modalServiceAddress = document.getElementById('modal-service-address');
+    const modalServicePhone = document.getElementById('modal-service-phone');
+    let servicosCarregados = {}; 
+
     function showSearchValidationMessage(message) {
         if (searchValidationMessageEl) {
             searchValidationMessageEl.textContent = message;
@@ -15,6 +28,111 @@ document.addEventListener('DOMContentLoaded', () => {
             // setTimeout(() => searchValidationMessageEl.classList.add('visible'), 10); 
         }
     }
+
+    function censorPhoneNumber(phone) {
+        if (!phone || typeof phone !== 'string' || phone.length < 10) {
+            return "Telefone não informado";
+        }
+        // Remove caracteres não numéricos, caso existam
+        const digits = phone.replace(/\D/g, '');
+        if (digits.length < 10) return "Telefone inválido";
+
+        const ddd = digits.substring(0, 2);
+        const ultimosDigitos = digits.substring(digits.length - 2);
+        // Exemplo: (XX) ******-XXYY ou (XX) *****XXYY (para 8 ou 9 dígitos no corpo)
+        const parteCentralCensurada = '*'.repeat(digits.length - 4); 
+        
+        return `(${ddd}) ${parteCentralCensurada.substring(0, Math.floor(parteCentralCensurada.length/2))}-${parteCentralCensurada.substring(Math.floor(parteCentralCensurada.length/2))}${ultimosDigitos}`;
+
+        if (digits.length >= 4) { // precisa de pelo menos 4 dígitos para ddd e final
+            const ddd = digits.substring(0, 2);
+            const parteFinal = digits.substring(digits.length - 2);
+            const numAsteriscos = Math.max(0, digits.length - 4); // Garante não ser negativo
+            return `(${ddd}) ${'*'.repeat(numAsteriscos)}${parteFinal}`;
+        }
+        return "Telefone inválido";
+    }
+
+    function openModal() {
+        if (modalOverlay) modalOverlay.classList.add('active');
+    }
+
+    function closeModal() {
+        if (modalOverlay) modalOverlay.classList.remove('active');
+    }
+
+    // --- Event Listeners para Fechar o Modal ---
+    if (modalCloseButton) {
+        modalCloseButton.addEventListener('click', closeModal);
+    }
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', (event) => {
+            // Fecha o modal apenas se o clique for no overlay em si, não no conteúdo
+            if (event.target === modalOverlay) {
+                closeModal();
+            }
+        });
+    }
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modalOverlay && modalOverlay.classList.contains('active')) {
+            closeModal();
+        }
+        // ... (seu listener de Escape para as sugestões de busca também deve permanecer)
+    });
+
+    function exibirDetalhesServico(idServico) {
+        const servico = servicosCarregados[idServico];
+        if (!servico) {
+            console.error("Detalhes do serviço não encontrados para o ID:", idServico);
+            return;
+        }
+
+        modalServiceTitle.textContent = servico.titulo || 'Detalhes do Serviço';
+        modalProviderName.textContent = `Prestado por: ${servico.nome || 'Não informado'}`;
+        
+        // Preço (usando sua lógica de precoFormatado)
+        let precoModal = 'Valor a combinar';
+        const valorFixoModal = formatSinglePrice(servico.valorFixo); // Requer formatSinglePrice
+        const valorMinModal = formatSinglePrice(servico.valorMin);
+        const valorMaxModal = formatSinglePrice(servico.valorMax);
+        const tipoDePrecoTextoModal = servico.precotipo ? servico.precotipo.trim() : "";
+
+        if (valorFixoModal) { precoModal = valorFixoModal; }
+        else if (valorMinModal && valorMaxModal) { precoModal = `${valorMinModal} - ${valorMaxModal}`; }
+        else if (valorMinModal) { precoModal = `A partir de ${valorMinModal}`; }
+        else if (valorMaxModal) { precoModal = `Até ${valorMaxModal}`; }
+        else if (tipoDePrecoTextoModal === "Valor variável") { precoModal = "Valor a combinar"; }
+        else if (tipoDePrecoTextoModal !== "") { precoModal = tipoDePrecoTextoModal; }
+        modalServicePrice.textContent = precoModal;
+
+        // Avaliação
+        let ratingModal = 'Novo';
+        const totalAvaliacoesNumModal = parseInt(servico.total_avaliacoes, 10);
+        const mediaAvaliacaoNumModal = parseFloat(servico.avaliacao_media);
+        if (!isNaN(totalAvaliacoesNumModal) && totalAvaliacoesNumModal > 0) {
+            if (!isNaN(mediaAvaliacaoNumModal)) {
+                ratingModal = `${mediaAvaliacaoNumModal.toFixed(1)} (${totalAvaliacoesNumModal} ${totalAvaliacoesNumModal === 1 ? 'aval.' : 'avaliações'})`;
+            } else {
+                ratingModal = `(${totalAvaliacoesNumModal} ${totalAvaliacoesNumModal === 1 ? 'aval.' : 'avaliações'}) - Média Indisp.`;
+            }
+        }
+        modalServiceRating.innerHTML = `<span class="star-icon">&#9733;</span> ${ratingModal}`;
+        
+        modalServiceCity.textContent = `${servico.cidade || ''} - ${servico.uf || ''}`;
+        modalServiceEmiteNf.textContent = servico.emiteNF ? 'Sim' : 'Não'; // "emiteNF" com N maiúsculo
+        modalServiceDescription.textContent = servico.descricao || 'Nenhuma descrição adicional fornecida.';
+        
+        let enderecoCompleto = "Endereço não fornecido";
+        if (servico.logradouro) {
+            enderecoCompleto = `${servico.logradouro}, ${servico.numero || 'S/N'} - ${servico.bairro || ''}, ${servico.cidade || ''} - ${servico.uf || ''}`;
+        }
+        modalServiceAddress.textContent = enderecoCompleto;
+        
+        modalServicePhone.textContent = censorPhoneNumber(servico.telefone);
+
+        openModal();
+    }
+
 
     function hideSearchValidationMessage() {
         if (searchValidationMessageEl) {
@@ -406,12 +524,18 @@ document.addEventListener('DOMContentLoaded', () => {
    
     servicosGrid.innerHTML = ''; 
 
-    if (!servicos || servicos.length === 0) {
-        servicosGrid.innerHTML = `<p style="color: var(--cor-texto-principal); text-align:center;">Nenhum serviço encontrado ou disponível no momento.</p>`;
-        return;
-    }
+    if (!servicosGrid) return; // Adicione esta verificação
+        servicosGrid.innerHTML = ''; 
+
+        if (!servicos || servicos.length === 0) {
+            servicosGrid.innerHTML = `<p style="color: var(--cor-texto-principal); text-align:center;">Nenhum serviço encontrado ou disponível no momento.</p>`;
+            return;
+        }
 
     servicos.forEach(servico => {
+         if (servico.idpessoaservprod) {
+                servicosCarregados[servico.idpessoaservprod] = servico;
+            }
         console.log('Dados do serviço para avaliação:', 
         { 
             titulo: servico.titulo, 
@@ -503,3 +627,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+document.body.addEventListener('click', function(event) {
+        const cardClicado = event.target.closest('.service-card');
+        if (cardClicado) {
+            const servicoId = cardClicado.dataset.serviceId; // Pega o ID do atributo data-service-id
+            if (servicoId) {
+                exibirDetalhesServico(servicoId);
+            }
+        }
+    });
