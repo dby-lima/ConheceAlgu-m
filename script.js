@@ -625,8 +625,8 @@ document.addEventListener('DOMContentLoaded', () => {
             servicosGrid.insertAdjacentHTML('beforeend', cardHTML);
         });
     }
-            // Se totalAvaliacoesNum for 0 ou NaN, ratingDisplay permanecerá 'Novo'
-    document.body.addEventListener('click', function(event) {
+    
+document.body.addEventListener('click', function(event) {
         const cardClicado = event.target.closest('.service-card');
         console.log("Evento de clique no body disparado. Target:", event.target);
         console.log("Tentando encontrar .service-card mais próximo:", cardClicado);
@@ -645,5 +645,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.log("O clique não foi em um .service-card ou em um elemento dentro dele.");
         }
-    });
+});
+
 });
