@@ -1175,177 +1175,200 @@ img {
     color: var(--azul-escuro);
 }
 
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Fundo escuro semi-transparente */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000; /* Sobrepor tudo */
-    opacity: 0; /* Começa invisível para animação */
-    visibility: hidden; /* Começa inacessível */
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.modal-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.modal-content {
-    background-color: #ffffff;
-    color: var(--cor-texto-principal);
-    padding: 30px 35px;
+.service-dialog {
+    border: none;
     border-radius: 12px;
-    box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+    padding: 0; /* O padding será no .dialog-content */
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
     width: 90%;
-    max-width: 650px; /* Largura máxima do modal */
-    max-height: 90vh; /* Altura máxima, com scroll interno */
-    overflow-y: auto;
-    position: relative;
-    transform: scale(0.95) translateY(-20px); /* Efeito inicial para animação */
-    transition: transform 0.3s ease;
+    max-width: 700px; /* Um pouco maior para mais detalhes */
+    margin: auto; /* Centraliza o dialog quando aberto */
+    /* Animação de entrada */
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease, display 0.3s allow-discrete; /* 'display' para animação de saída */
 }
 
-.modal-overlay.active .modal-content {
+/* Quando o dialog está aberto (tem o atributo 'open') */
+.service-dialog[open] {
+    opacity: 1;
     transform: scale(1) translateY(0);
+    /* Para o 'display' na animação de saída */
+    /* transition: display 0.3s allow-discrete; */ /* Esta linha já está no de cima */
 }
 
-.modal-close {
+/* Animação de saída - experimental com @starting-style */
+/* Se não funcionar bem em todos os navegadores, a transição de opacity/transform já dá um bom efeito */
+/* @starting-style {
+    .service-dialog[open] {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+} */
+
+
+/* Backdrop (fundo) do dialog */
+.service-dialog::backdrop {
+    background-color: rgba(11, 77, 115, 0.5); /* Tom do seu azul escuro com transparência */
+    backdrop-filter: blur(3px); /* Efeito de desfoque sutil no fundo */
+    -webkit-backdrop-filter: blur(3px);
+    opacity: 0;
+    transition: opacity 0.3s ease, backdrop-filter 0.3s ease, display 0.3s allow-discrete;
+}
+
+.service-dialog[open]::backdrop {
+    opacity: 1;
+    /* transition: display 0.3s allow-discrete; */ /* Já está no de cima */
+}
+/* Animação de saída para o backdrop - experimental */
+/* @starting-style {
+    .service-dialog[open]::backdrop {
+        opacity: 0;
+    }
+} */
+
+
+.dialog-content {
+    padding: 30px 35px;
+    color: var(--cor-texto-principal);
+    max-height: 85vh; /* Altura máxima */
+    overflow-y: auto; /* Scroll se o conteúdo for maior */
+}
+
+.dialog-close-btn {
     position: absolute;
-    top: 15px;
-    right: 20px;
+    top: 12px;
+    right: 15px;
     background: none;
     border: none;
-    font-size: 2.2rem;
-    color: #888;
+    font-size: 2.5rem; /* Maior para melhor clique */
+    color: #aaa;
     cursor: pointer;
     line-height: 1;
-    padding: 0;
-    transition: color 0.2s ease;
+    padding: 5px;
+    transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.modal-close:hover {
+.dialog-close-btn:hover {
     color: var(--azul-escuro);
+    transform: rotate(90deg);
 }
 
-.modal-header {
-    border-bottom: 1px solid #eee;
+.dialog-header {
+    border-bottom: 1px solid #e0e0e0;
     padding-bottom: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     text-align: left;
+    position: relative; /* Para o botão de fechar */
 }
 
-.modal-header h2 { /* #modal-service-title */
+.dialog-header h2 { /* #dialog-service-title */
     color: var(--azul-escuro);
-    font-size: 2rem;
-    margin-bottom: 5px;
+    font-size: 2rem; /* Consistente */
+    margin-bottom: 6px;
+    padding-right: 30px; /* Espaço para o botão de fechar não sobrepor */
 }
 
-.modal-provider { /* #modal-provider-name */
+.dialog-provider { /* #dialog-provider-name */
     font-size: 1rem;
     color: #555;
     font-weight: 500;
 }
 
-.modal-body {
+.dialog-body {
     text-align: left;
 }
 
-.modal-info-grid {
+.dialog-info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* 2 ou 3 colunas dependendo do espaço */
-    gap: 15px 25px;
-    margin-bottom: 25px;
-    padding-bottom: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px 28px;
+    margin-bottom: 28px;
+    padding-bottom: 22px;
     border-bottom: 1px solid #f0f0f0;
 }
 
-.modal-info-grid div {
-    /* Estilo para cada item da grade */
-}
-
-.modal-info-grid strong {
+.dialog-info-grid strong {
     display: block;
-    font-size: 0.85rem;
-    color: #777;
-    margin-bottom: 4px;
+    font-size: 0.9rem; /* Um pouco maior */
+    color: #666; /* Um pouco mais escuro */
+    margin-bottom: 5px;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-.modal-info-grid p {
-    font-size: 1rem;
+.dialog-info-grid p {
+    font-size: 1.05rem; /* Um pouco maior */
     color: var(--cor-texto-principal);
     margin-bottom: 0;
     font-weight: 500;
 }
 
-.modal-info-grid #modal-service-rating .star-icon {
+.dialog-info-grid #dialog-service-rating .star-icon {
     color: var(--amarelo-dourado);
-    margin-right: 3px;
+    margin-right: 4px;
 }
 
-.modal-section {
-    margin-bottom: 25px;
+.dialog-section {
+    margin-bottom: 28px;
 }
 
-.modal-section h3 {
-    font-size: 1.3rem;
+.dialog-section h3 {
+    font-size: 1.4rem; /* Um pouco maior */
     color: var(--azul-escuro);
-    margin-bottom: 10px;
-    padding-bottom: 5px;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
     border-bottom: 2px solid var(--amarelo-dourado);
     display: inline-block;
 }
 
-.modal-section p {
+.dialog-section p {
     font-size: 1rem;
-    line-height: 1.7;
+    line-height: 1.75; /* Melhor legibilidade */
     color: #444;
 }
 
-#modal-service-phone {
+#dialog-service-phone {
     font-weight: 600;
     color: var(--azul-escuro);
+    background-color: #f0f8ff; /* Fundo sutil para destacar */
+    padding: 3px 6px;
+    border-radius: 4px;
+    display: inline-block;
 }
 
-.modal-footer {
-    text-align: right; /* Alinha botão à direita */
-    padding-top: 20px;
-    margin-top: 20px;
-    border-top: 1px solid #eee;
+.dialog-footer {
+    text-align: right;
+    padding-top: 25px;
+    margin-top: 25px;
+    border-top: 1px solid #e0e0e0;
 }
 
-#modal-contratar-button {
-    padding: 12px 30px; /* Botão um pouco maior */
-    font-size: 1.05rem;
+#dialog-contratar-button { /* Mesmo estilo do .btn.btn-dourado */
+    padding: 14px 35px; 
+    font-size: 1.1rem;
 }
 
-/* Responsividade do Modal */
+/* Responsividade do Dialog */
 @media (max-width: 768px) {
-    .modal-content {
+    .dialog-content {
         padding: 25px 20px;
-        max-height: 95vh;
     }
-    .modal-header h2 {
+    .dialog-header h2 {
         font-size: 1.7rem;
     }
-    .modal-info-grid {
-        grid-template-columns: 1fr 1fr; /* Força 2 colunas */
+    .dialog-info-grid {
+        grid-template-columns: 1fr 1fr;
     }
 }
 @media (max-width: 480px) {
-    .modal-info-grid {
-        grid-template-columns: 1fr; /* Força 1 coluna em telas muito pequenas */
+    .dialog-info-grid {
+        grid-template-columns: 1fr;
     }
-     .modal-footer {
+     .dialog-footer {
         text-align: center;
     }
-    #modal-contratar-button {
+    #dialog-contratar-button {
         width: 100%;
     }
 }

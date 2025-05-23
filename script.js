@@ -1,32 +1,86 @@
 // public/script.js
 document.addEventListener('DOMContentLoaded', () => {
     const searchValidationMessageEl = document.getElementById('search-validation-message');
-    const searchSuggestionsEl = document.getElementById('search-suggestions'); // Novo seletor
-    let htmlDestaquesOriginal = ''; // Variável para guardar o HTML dos destaques
-    
+    const searchSuggestionsEl = document.getElementById('search-suggestions');
+
+    // --- Seletores para o <dialog> ---
+    const serviceDialog = document.getElementById('service-detail-dialog');
+    const dialogCloseButton = document.getElementById('dialog-close-button');
+    const dialogServiceTitle = document.getElementById('dialog-service-title');
+    const dialogProviderName = document.getElementById('dialog-provider-name');
+    const dialogServicePrice = document.getElementById('dialog-service-price');
+    const dialogServiceRating = document.getElementById('dialog-service-rating');
+    const dialogServiceCity = document.getElementById('dialog-service-city');
+    const dialogServiceEmiteNf = document.getElementById('dialog-service-emite-nf');
+    const dialogServiceDescription = document.getElementById('dialog-service-description');
+    const dialogServiceAddress = document.getElementById('dialog-service-address');
+    const dialogServicePhone = document.getElementById('dialog-service-phone');
+    const dialogContratarButton = document.getElementById('dialog-contratar-button'); // Bom ter este também
+
+    // Seus seletores existentes
     const searchButton = document.querySelector('.search-button');
     const searchBar = document.querySelector('.search-bar');
     const citySelect = document.querySelector('#cidade-select');
-    const modalOverlay = document.getElementById('service-detail-modal');
-    const modalCloseButton = document.getElementById('modal-close-button');
-    const modalServiceTitle = document.getElementById('modal-service-title');
-    const modalProviderName = document.getElementById('modal-provider-name');
-    const modalServicePrice = document.getElementById('modal-service-price');
-    const modalServiceRating = document.getElementById('modal-service-rating');
-    const modalServiceCity = document.getElementById('modal-service-city');
-    const modalServiceEmiteNf = document.getElementById('modal-service-emite-nf');
-    const modalServiceDescription = document.getElementById('modal-service-description');
-    const modalServiceAddress = document.getElementById('modal-service-address');
-    const modalServicePhone = document.getElementById('modal-service-phone');
-    let servicosCarregados = {}; 
+    const servicosSection = document.getElementById('servicos');
+    const servicosTitle = document.getElementById('servicos-section-title');
+    const servicosGrid = document.getElementById('servicos-grid-content');
 
+    // Variáveis globais ao escopo do DOMContentLoaded
+    let servicosCarregados = {}; // Para armazenar os dados dos serviços carregados
+    // let htmlDestaquesOriginal = ''; // Você não precisa mais desta se os destaques são 100% dinâmicos
+
+    // Suas URLs e Chave API do Supabase (já devem estar aqui)
+    const supabaseRpcUrl = 'https://tptihbousfgodqkvdqki.supabase.co/rest/v1/rpc/buscar_servicos';
+    const supabaseCidadesUrl = 'https://tptihbousfgodqkvdqki.supabase.co/rest/v1/cidades_unicas?select=cidade,uf&order=cidade.asc';
+    const supabaseApiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwdGloYm91c2Znb2Rxa3ZkcWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk1MzQ0NDYsImV4cCI6MjA0NTExMDQ0Nn0.fVvZOnzVrLJxUBEMDIGU-QVpdmDb_6_9NKubKDFa72A';
+    const supabaseSuggestUrl = 'https://tptihbousfgodqkvdqki.supabase.co/rest/v1/rpc/sugerir_termos_pesquisa';
+
+    function formatSinglePrice(valueString) {
+        if (!valueString || valueString.trim() === "") return null;
+        const number = parseFloat(valueString);
+        if (isNaN(number)) return null;
+        return `R$ ${number.toFixed(2).replace('.', ',')}`;
+    }
+
+    function censorPhoneNumber(phone) {
+        if (!phone || typeof phone !== 'string' || phone.length < 10) {
+            return "Telefone não informado";
+        }
+        const digits = phone.replace(/\D/g, '');
+        if (digits.length < 10) return "Telefone inválido";
+
+        if (digits.length >= 4) {
+            const ddd = digits.substring(0, 2);
+            const parteFinal = digits.substring(digits.length - 2);
+            const numAsteriscos = Math.max(0, digits.length - 4);
+            return `(${ddd}) ${'*'.repeat(numAsteriscos)}${parteFinal}`;
+        }
+        return "Telefone inválido";
+    }
+
+    // Funções para controlar o <dialog>
+    function openServiceDialog() { // Renomeei para ser específico do dialog de serviço
+        if (serviceDialog) { // serviceDialog é o elemento <dialog>
+            console.log("Abrindo dialog de serviço...");
+            serviceDialog.showModal(); // Método nativo para abrir
+        } else {
+            console.error("Elemento dialog 'service-detail-dialog' não encontrado.");
+        }
+    }
+
+    function closeServiceDialog() { // Renomeei para ser específico
+        if (serviceDialog) {
+            console.log("Fechando dialog de serviço...");
+            serviceDialog.close(); // Método nativo para fechar
+        } else {
+            console.error("Elemento dialog 'service-detail-dialog' não encontrado ao tentar fechar.");
+        }
+    }
 
     function showSearchValidationMessage(message) {
         if (searchValidationMessageEl) {
             searchValidationMessageEl.textContent = message;
             searchValidationMessageEl.style.display = 'block';
-            // Para animação (se adicionou as classes .visible no CSS):
-            // setTimeout(() => searchValidationMessageEl.classList.add('visible'), 10); 
         }
     }
 
@@ -34,11 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (searchValidationMessageEl) {
             searchValidationMessageEl.style.display = 'none';
             searchValidationMessageEl.textContent = '';
-            // Para animação:
-            // searchValidationMessageEl.classList.remove('visible');
         }
     }
-     function debounce(func, delay) {
+
+    function debounce(func, delay) {
         let timeoutId;
         return function(...args) {
             clearTimeout(timeoutId);
@@ -46,6 +99,203 @@ document.addEventListener('DOMContentLoaded', () => {
                 func.apply(this, args);
             }, delay);
         };
+    }
+
+    function exibirDetalhesServicoDialog(idServico) {
+        console.log("Função exibirDetalhesServicoDialog chamada com ID:", idServico);
+        const servico = servicosCarregados[idServico];
+        
+        if (!servico) {
+            console.error("Detalhes do serviço não encontrados para o ID:", idServico, "em servicosCarregados:", servicosCarregados);
+            return;
+        }
+        console.log("Serviço encontrado para dialog:", servico);
+
+        // Verifica se todos os elementos do dialog foram encontrados antes de usá-los
+        if(!dialogServiceTitle || !dialogProviderName || !dialogServicePrice || !dialogServiceRating || 
+           !dialogServiceCity || !dialogServiceEmiteNf || !dialogServiceDescription || 
+           !dialogServiceAddress || !dialogServicePhone) {
+            console.error("Um ou mais elementos internos do dialog não foram encontrados no DOM! Verifique os IDs.");
+            return;
+        }
+
+        dialogServiceTitle.textContent = servico.titulo || 'Detalhes do Serviço';
+        dialogProviderName.textContent = `Prestado por: ${servico.nome || 'Não informado'}`;
+        
+        let precoDialog = 'Valor a combinar';
+        const valorFixoDialog = formatSinglePrice(servico.valorFixo);
+        const valorMinDialog = formatSinglePrice(servico.valorMin);
+        const valorMaxDialog = formatSinglePrice(servico.valorMax);
+        const tipoDePrecoTextoDialog = servico.precotipo ? servico.precotipo.trim() : "";
+
+        if (valorFixoDialog) { precoDialog = valorFixoDialog; }
+        else if (valorMinDialog && valorMaxDialog) { precoDialog = `${valorMinDialog} - ${valorMaxDialog}`; }
+        else if (valorMinDialog) { precoDialog = `A partir de ${valorMinDialog}`; }
+        else if (valorMaxDialog) { precoDialog = `Até ${valorMaxDialog}`; }
+        else if (tipoDePrecoTextoDialog === "Valor variável") { precoDialog = "Valor a combinar"; }
+        else if (tipoDePrecoTextoDialog !== "") { precoDialog = tipoDePrecoTextoDialog; }
+        dialogServicePrice.textContent = precoDialog;
+
+        let ratingDialog = 'Novo';
+        const totalAvaliacoesNumDialog = parseInt(servico.total_avaliacoes, 10);
+        const mediaAvaliacaoNumDialog = parseFloat(servico.avaliacao_media);
+        if (!isNaN(totalAvaliacoesNumDialog) && totalAvaliacoesNumDialog > 0) {
+            if (!isNaN(mediaAvaliacaoNumDialog)) {
+                ratingDialog = `${mediaAvaliacaoNumDialog.toFixed(1)} (${totalAvaliacoesNumDialog} ${totalAvaliacoesNumDialog === 1 ? 'aval.' : 'avaliações'})`;
+            } else {
+                ratingDialog = `(${totalAvaliacoesNumDialog} ${totalAvaliacoesNumDialog === 1 ? 'aval.' : 'avaliações'}) - Média Indisp.`;
+            }
+        }
+        dialogServiceRating.innerHTML = `<span class="star-icon">&#9733;</span> ${ratingDialog}`;
+        
+        dialogServiceCity.textContent = `${servico.cidade || ''}${servico.uf ? ' - ' + servico.uf : ''}`;
+        dialogServiceEmiteNf.textContent = servico.emiteNF ? 'Sim' : 'Não'; // "emiteNF" como está na sua view
+        dialogServiceDescription.textContent = servico.descricao || 'Nenhuma descrição adicional fornecida.';
+        
+        let enderecoCompleto = "Endereço não fornecido";
+        if (servico.logradouro) {
+            enderecoCompleto = `${servico.logradouro || ''}${servico.numero ? ', ' + servico.numero : ', S/N'}${servico.bairro ? ' - ' + servico.bairro : ''}`;
+            // Adicionar cidade e UF apenas se diferente da cidade principal do serviço, ou sempre para clareza
+            // enderecoCompleto += `, ${servico.cidade || ''} - ${servico.uf || ''}`;
+        }
+        dialogServiceAddress.textContent = enderecoCompleto;
+        
+        dialogServicePhone.textContent = censorPhoneNumber(servico.telefone);
+
+        openServiceDialog(); // Chama a função para ABRIR o dialog
+    }
+
+    // --- Função para carregar cidades no dropdown ---
+    async function carregarCidades() {
+        if (!citySelect) return;
+
+        try {
+            const response = await fetch(supabaseCidadesUrl, {
+                method: 'GET',
+                headers: {
+                    'apikey': supabaseApiKey,
+                    'Authorization': `Bearer ${supabaseApiKey}`
+                }
+            });
+
+            if (!response.ok) {
+                console.error('Erro ao buscar cidades:', response.statusText);
+                // Adicionar uma opção de erro ou manter as opções estáticas do HTML
+                const optionError = document.createElement('option');
+                optionError.value = "";
+                optionError.textContent = "Erro ao carregar cidades";
+                citySelect.appendChild(optionError);
+                return;
+            }
+
+            const cidades = await response.json();
+
+            if (cidades && cidades.length > 0) {
+                // Limpa opções existentes (exceto a primeira "Escolha a cidade")
+                // Para fazer isso de forma segura, podemos remover todas a partir da segunda
+                while (citySelect.options.length > 1) {
+                    citySelect.remove(1);
+                }
+                
+                cidades.forEach(item => {
+                    const option = document.createElement('option');
+                    // A view retorna objetos {cidade: "Nome Cidade", uf: "UF"}
+                    // Vamos usar "Nome Cidade - UF" como texto e "Nome Cidade" como valor, 
+                    // pois sua função buscar_servicos espera 'cidade_usuario text'
+                    option.value = item.cidade; 
+                    option.textContent = `${item.cidade} - ${item.uf}`;
+                    citySelect.appendChild(option);
+                });
+            } else {
+                // Caso não retorne cidades, pode adicionar uma mensagem
+                const optionNoCity = document.createElement('option');
+                optionNoCity.value = "";
+                optionNoCity.textContent = "Nenhuma cidade disponível";
+                citySelect.appendChild(optionNoCity);
+            }
+
+        } catch (error) {
+            console.error('Erro na requisição para buscar cidades:', error);
+            const optionError = document.createElement('option');
+            optionError.value = "";
+            optionError.textContent = "Falha ao carregar cidades";
+            citySelect.appendChild(optionError);
+        }
+    }
+
+    async function carregarServicosDestaque() {
+        console.log("1. Iniciando carregarServicosDestaque..."); // Novo Log
+
+        if (!servicosGrid || !servicosTitle) {
+            console.error("ERRO: servicosGrid ou servicosTitle não encontrado no DOM."); // Novo Log
+            return;
+        }
+
+        servicosTitle.textContent = "Serviços em Destaque";
+        servicosGrid.innerHTML = '<p style="color: var(--cor-texto-principal); text-align:center;">Carregando destaques...</p>';
+        console.log("2. Mensagem 'Carregando destaques...' exibida."); // Novo Log
+
+        const limiteInicialBusca = 15;
+        const limiteFinalExibicao = 6;
+
+        // Confirme que supabaseCidadesUrl e supabaseApiKey estão definidas e corretas no escopo.
+        // console.log("Supabase API Key:", supabaseApiKey); // Descomente para verificar a chave se suspeitar dela
+        const urlDestaques = `${supabaseCidadesUrl.split('/cidades_unicas')[0]}/view_servicos_completa?select=*,idpessoaservprod,avaliacao_media,total_avaliacoes&order=avaliacao_media.desc,total_avaliacoes.desc&limit=${limiteInicialBusca}`;
+        console.log("3. URL para buscar destaques:", urlDestaques); // Novo Log
+
+        try {
+            const responseDestaques = await fetch(urlDestaques, {
+                method: 'GET',
+                headers: { 'apikey': supabaseApiKey, 'Authorization': `Bearer ${supabaseApiKey}` }
+            });
+            console.log("4. Resposta da API recebida, status:", responseDestaques.status); // Novo Log
+
+            if (!responseDestaques.ok) {
+                console.error('Erro ao buscar serviços em destaque:', responseDestaques.status, responseDestaques.statusText);
+                const errorBody = await responseDestaques.text(); // Tenta ler o corpo do erro
+                console.error("Corpo do erro da API:", errorBody);
+                servicosGrid.innerHTML = '<p style="color: red; text-align:center;">Não foi possível carregar os destaques. Verifique o console.</p>';
+                return;
+            }
+            
+            let destaquesCompletos = await responseDestaques.json();
+            console.log("5. Destaques recebidos da API:", destaquesCompletos); // Novo Log
+
+            if (!destaquesCompletos || destaquesCompletos.length === 0) {
+                console.log("Nenhum destaque completo retornado pela API."); // Novo Log
+                servicosGrid.innerHTML = `<p style="color: var(--cor-texto-principal); text-align:center;">Nenhum serviço em destaque no momento.</p>`;
+                return; // IMPORTANTE: Adicionar este return para sair se não houver dados.
+            }
+
+            const servicosUnicosDestaque = [];
+            const titulosAdicionados = new Set();
+
+            for (const servico of destaquesCompletos) {
+                if (servicosUnicosDestaque.length >= limiteFinalExibicao) {
+                    break; 
+                }
+                const tituloNormalizado = servico.titulo ? servico.titulo.trim().toLowerCase() : ''; 
+                if (servico.titulo && !titulosAdicionados.has(tituloNormalizado)) { // Adicionado check se servico.titulo existe
+                    servicosUnicosDestaque.push(servico);
+                    titulosAdicionados.add(tituloNormalizado);
+                }
+            }
+            console.log("6. Serviços únicos filtrados:", servicosUnicosDestaque); // Novo Log
+            
+            if (servicosUnicosDestaque.length === 0 && destaquesCompletos.length > 0) {
+                console.log("Nenhum serviço com título único encontrado, usando fallback."); // Novo Log
+                renderizarServicosBuscados(destaquesCompletos.slice(0, limiteFinalExibicao));
+            } else if (servicosUnicosDestaque.length > 0) { // Modificado para else if
+                renderizarServicosBuscados(servicosUnicosDestaque);
+            } else { // Se ambos são vazios (já tratado pelo return anterior, mas como segurança)
+                console.log("Nenhum serviço para renderizar após filtros."); // Novo Log
+                servicosGrid.innerHTML = `<p style="color: var(--cor-texto-principal); text-align:center;">Nenhum serviço em destaque no momento.</p>`;
+            }
+
+        } catch (error) {
+            console.error('Erro CRÍTICO na requisição ou processamento de serviços em destaque:', error);
+            servicosGrid.innerHTML = '<p style="color: red; text-align:center;">Falha crítica ao carregar destaques. Verifique o console.</p>';
+        }
     }
 
     async function fetchAndRenderSuggestions() {
@@ -176,366 +426,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-    
-
-    const debouncedFetchSuggestions = debounce(fetchAndRenderSuggestions, 400);
-    // IDs para a seção de serviços que será atualizada
-    const servicosSection = document.getElementById('servicos'); // A seção inteira
-    const servicosTitle = document.getElementById('servicos-section-title'); // O H2 dentro da seção
-    const servicosGrid = document.getElementById('servicos-grid-content'); // O div que contém os cards
-
-    // Captura o HTML original dos serviços em destaque ASSIM que o DOM carregar
-    if (servicosGrid) {
-        htmlDestaquesOriginal = servicosGrid.innerHTML;
-    }
-
-    // URL e Chave API para a função buscar_servicos (POST)
-    const supabaseRpcUrl = 'https://tptihbousfgodqkvdqki.supabase.co/rest/v1/rpc/buscar_servicos';
-    // URL e Chave API para a view cidades_unicas (GET)
-    const supabaseCidadesUrl = 'https://tptihbousfgodqkvdqki.supabase.co/rest/v1/cidades_unicas?select=cidade,uf&order=cidade.asc';
-    const supabaseApiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwdGloYm91c2Znb2Rxa3ZkcWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk1MzQ0NDYsImV4cCI6MjA0NTExMDQ0Nn0.fVvZOnzVrLJxUBEMDIGU-QVpdmDb_6_9NKubKDFa72A';
-    const supabaseSuggestUrl = 'https://tptihbousfgodqkvdqki.supabase.co/rest/v1/rpc/sugerir_termos_pesquisa';
-    
-    // --- Função para carregar cidades no dropdown ---
-    async function carregarCidades() {
-        if (!citySelect) return;
-
-        try {
-            const response = await fetch(supabaseCidadesUrl, {
-                method: 'GET',
-                headers: {
-                    'apikey': supabaseApiKey,
-                    'Authorization': `Bearer ${supabaseApiKey}`
-                }
-            });
-
-            if (!response.ok) {
-                console.error('Erro ao buscar cidades:', response.statusText);
-                // Adicionar uma opção de erro ou manter as opções estáticas do HTML
-                const optionError = document.createElement('option');
-                optionError.value = "";
-                optionError.textContent = "Erro ao carregar cidades";
-                citySelect.appendChild(optionError);
-                return;
-            }
-
-            const cidades = await response.json();
-
-            if (cidades && cidades.length > 0) {
-                // Limpa opções existentes (exceto a primeira "Escolha a cidade")
-                // Para fazer isso de forma segura, podemos remover todas a partir da segunda
-                while (citySelect.options.length > 1) {
-                    citySelect.remove(1);
-                }
-                
-                cidades.forEach(item => {
-                    const option = document.createElement('option');
-                    // A view retorna objetos {cidade: "Nome Cidade", uf: "UF"}
-                    // Vamos usar "Nome Cidade - UF" como texto e "Nome Cidade" como valor, 
-                    // pois sua função buscar_servicos espera 'cidade_usuario text'
-                    option.value = item.cidade; 
-                    option.textContent = `${item.cidade} - ${item.uf}`;
-                    citySelect.appendChild(option);
-                });
-            } else {
-                // Caso não retorne cidades, pode adicionar uma mensagem
-                const optionNoCity = document.createElement('option');
-                optionNoCity.value = "";
-                optionNoCity.textContent = "Nenhuma cidade disponível";
-                citySelect.appendChild(optionNoCity);
-            }
-
-        } catch (error) {
-            console.error('Erro na requisição para buscar cidades:', error);
-            const optionError = document.createElement('option');
-            optionError.value = "";
-            optionError.textContent = "Falha ao carregar cidades";
-            citySelect.appendChild(optionError);
-        }
-    }
-    async function carregarServicosDestaque() {
-        console.log("1. Iniciando carregarServicosDestaque..."); // Novo Log
-
-        if (!servicosGrid || !servicosTitle) {
-            console.error("ERRO: servicosGrid ou servicosTitle não encontrado no DOM."); // Novo Log
-            return;
-        }
-
-        servicosTitle.textContent = "Serviços em Destaque";
-        servicosGrid.innerHTML = '<p style="color: var(--cor-texto-principal); text-align:center;">Carregando destaques...</p>';
-        console.log("2. Mensagem 'Carregando destaques...' exibida."); // Novo Log
-
-        const limiteInicialBusca = 15;
-        const limiteFinalExibicao = 6;
-
-        // Confirme que supabaseCidadesUrl e supabaseApiKey estão definidas e corretas no escopo.
-        // console.log("Supabase API Key:", supabaseApiKey); // Descomente para verificar a chave se suspeitar dela
-        const urlDestaques = `${supabaseCidadesUrl.split('/cidades_unicas')[0]}/view_servicos_completa?select=*,idpessoaservprod,avaliacao_media,total_avaliacoes&order=avaliacao_media.desc,total_avaliacoes.desc&limit=${limiteInicialBusca}`;
-        console.log("3. URL para buscar destaques:", urlDestaques); // Novo Log
-
-        try {
-            const responseDestaques = await fetch(urlDestaques, {
-                method: 'GET',
-                headers: { 'apikey': supabaseApiKey, 'Authorization': `Bearer ${supabaseApiKey}` }
-            });
-            console.log("4. Resposta da API recebida, status:", responseDestaques.status); // Novo Log
-
-            if (!responseDestaques.ok) {
-                console.error('Erro ao buscar serviços em destaque:', responseDestaques.status, responseDestaques.statusText);
-                const errorBody = await responseDestaques.text(); // Tenta ler o corpo do erro
-                console.error("Corpo do erro da API:", errorBody);
-                servicosGrid.innerHTML = '<p style="color: red; text-align:center;">Não foi possível carregar os destaques. Verifique o console.</p>';
-                return;
-            }
-            
-            let destaquesCompletos = await responseDestaques.json();
-            console.log("5. Destaques recebidos da API:", destaquesCompletos); // Novo Log
-
-            if (!destaquesCompletos || destaquesCompletos.length === 0) {
-                console.log("Nenhum destaque completo retornado pela API."); // Novo Log
-                servicosGrid.innerHTML = `<p style="color: var(--cor-texto-principal); text-align:center;">Nenhum serviço em destaque no momento.</p>`;
-                return; // IMPORTANTE: Adicionar este return para sair se não houver dados.
-            }
-
-            const servicosUnicosDestaque = [];
-            const titulosAdicionados = new Set();
-
-            for (const servico of destaquesCompletos) {
-                if (servicosUnicosDestaque.length >= limiteFinalExibicao) {
-                    break; 
-                }
-                const tituloNormalizado = servico.titulo ? servico.titulo.trim().toLowerCase() : ''; 
-                if (servico.titulo && !titulosAdicionados.has(tituloNormalizado)) { // Adicionado check se servico.titulo existe
-                    servicosUnicosDestaque.push(servico);
-                    titulosAdicionados.add(tituloNormalizado);
-                }
-            }
-            console.log("6. Serviços únicos filtrados:", servicosUnicosDestaque); // Novo Log
-            
-            if (servicosUnicosDestaque.length === 0 && destaquesCompletos.length > 0) {
-                console.log("Nenhum serviço com título único encontrado, usando fallback."); // Novo Log
-                renderizarServicosBuscados(destaquesCompletos.slice(0, limiteFinalExibicao));
-            } else if (servicosUnicosDestaque.length > 0) { // Modificado para else if
-                renderizarServicosBuscados(servicosUnicosDestaque);
-            } else { // Se ambos são vazios (já tratado pelo return anterior, mas como segurança)
-                console.log("Nenhum serviço para renderizar após filtros."); // Novo Log
-                servicosGrid.innerHTML = `<p style="color: var(--cor-texto-principal); text-align:center;">Nenhum serviço em destaque no momento.</p>`;
-            }
-
-        } catch (error) {
-            console.error('Erro CRÍTICO na requisição ou processamento de serviços em destaque:', error);
-            servicosGrid.innerHTML = '<p style="color: red; text-align:center;">Falha crítica ao carregar destaques. Verifique o console.</p>';
-        }
-    }
-
-    // Chamar a função para carregar cidades quando a página carregar
-    carregarCidades();
-    carregarServicosDestaque();
-
-    // --- Lógica da Busca de Serviços (modificada) ---
-    if (searchButton) {
-        searchButton.addEventListener('click', async () => {
-            hideSearchValidationMessage(); // Função para esconder a mensagem (vamos criá-la abaixo)
-
-            const filtro = searchBar.value.trim();
-            const cidadeSelecionada = citySelect.value;
-            const nomeCidadeDisplay = citySelect.options[citySelect.selectedIndex].text;
-
-            // 1. VERIFICAR SE AMBOS OS CAMPOS ESTÃO VAZIOS PARA RESTAURAR DESTAQUES
-            if (!filtro && !cidadeSelecionada) { // Se filtro de texto está vazio E nenhuma cidade selecionada
-                if (servicosTitle) {
-                    servicosTitle.textContent = "Serviços em Destaque";
-                }
-                if (servicosGrid && htmlDestaquesOriginal) {
-                    servicosGrid.innerHTML = htmlDestaquesOriginal;
-                }
-                if (servicosSection) {
-                    servicosSection.scrollIntoView({ behavior: 'smooth' });
-                }
-                return; // Interrompe a execução aqui, não faz busca nem validação de cidade
-            }
-
-            // 2. VALIDAR SE A CIDADE FOI SELECIONADA (se não estivermos restaurando destaques)
-            if (!cidadeSelecionada) {
-                showSearchValidationMessage('Por favor, selecione uma cidade para continuar a busca.'); // Nova função
-                return;
-            }
-
-            // 3. PREPARAR UI E FAZER A BUSCA (como antes)
-            servicosGrid.innerHTML = '<p style="color: var(--cor-texto-principal); text-align:center;">Buscando serviços...</p>';
-            
-            let tituloBusca = '';
-            if (filtro && cidadeSelecionada) {
-                tituloBusca = `Encontre ${filtro} em ${nomeCidadeDisplay.split(' - ')[0]}`;
-            } else if (cidadeSelecionada) { // Filtro de texto pode estar vazio, mas cidade selecionada
-                tituloBusca = `Serviços em ${nomeCidadeDisplay.split(' - ')[0]}`;
-            }
-            servicosTitle.textContent = tituloBusca;
-
-            try {
-                const response = await fetch(supabaseRpcUrl, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': supabaseApiKey,
-                        'Authorization': `Bearer ${supabaseApiKey}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify({
-                        filtro: filtro || "", 
-                        cidade_usuario: cidadeSelecionada
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error('Erro da API Supabase (buscar_servicos):', errorData);
-                    throw new Error(`Erro na busca: ${response.statusText} (Status: ${response.status})`);
-                }
-
-                const servicosEncontrados = await response.json();
-                renderizarServicosBuscados(servicosEncontrados);
-
-            } catch (error) {
-                console.error('Erro ao buscar serviços:', error);
-                servicosGrid.innerHTML = `<p style="color: red; text-align:center;">Ocorreu um erro ao buscar os serviços. Tente novamente.</p>`;
-            } finally {
-                // Rolar para a seção de serviços após a tentativa de busca
-                if (servicosSection) {
-                    servicosSection.scrollIntoView({ behavior: 'smooth' });
-                }
-            }
-        });
-    }
-
-    function formatSinglePrice(valueString) {
-    if (!valueString || valueString.trim() === "") return null; // Retorna null se vazio
-    const number = parseFloat(valueString);
-    if (isNaN(number)) return null; // Retorna null se não for um número válido
-    return `R$ ${number.toFixed(2).replace('.', ',')}`;
-    }
-
-    function censorPhoneNumber(phone) {
-        if (!phone || typeof phone !== 'string' || phone.length < 10) {
-            return "Telefone não informado";
-        }
-        // Remove caracteres não numéricos, caso existam
-        const digits = phone.replace(/\D/g, '');
-        if (digits.length < 10) return "Telefone inválido";
-
-        const ddd = digits.substring(0, 2);
-        const ultimosDigitos = digits.substring(digits.length - 2);
-        // Exemplo: (XX) ******-XXYY ou (XX) *****XXYY (para 8 ou 9 dígitos no corpo)
-        const parteCentralCensurada = '*'.repeat(digits.length - 4); 
-        
-        return `(${ddd}) ${parteCentralCensurada.substring(0, Math.floor(parteCentralCensurada.length/2))}-${parteCentralCensurada.substring(Math.floor(parteCentralCensurada.length/2))}${ultimosDigitos}`;
-
-        if (digits.length >= 4) { // precisa de pelo menos 4 dígitos para ddd e final
-            const ddd = digits.substring(0, 2);
-            const parteFinal = digits.substring(digits.length - 2);
-            const numAsteriscos = Math.max(0, digits.length - 4); // Garante não ser negativo
-            return `(${ddd}) ${'*'.repeat(numAsteriscos)}${parteFinal}`;
-        }
-        return "Telefone inválido";
-    }
-
-    function openModal() {
-        if (modalOverlay) modalOverlay.classList.add('active');
-    }
-
-    function closeModal() {
-        if (modalOverlay) modalOverlay.classList.remove('active');
-    }
-
-
-    if (modalCloseButton) {
-        modalCloseButton.addEventListener('click', closeModal);
-    }
-    if (modalOverlay) {
-        modalOverlay.addEventListener('click', (event) => {
-            // Fecha o modal apenas se o clique for no overlay em si, não no conteúdo
-            if (event.target === modalOverlay) {
-                closeModal();
-            }
-        });
-    }
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && modalOverlay && modalOverlay.classList.contains('active')) {
-            closeModal();
-        }
-        // ... (seu listener de Escape para as sugestões de busca também deve permanecer)
-    });
-
-    function exibirDetalhesServico(idServico) {
-        const servico = servicosCarregados[idServico];
-        if (!servico) {
-            console.error("Detalhes do serviço não encontrados para o ID:", idServico);
-            return;
-        }
-
-        modalServiceTitle.textContent = servico.titulo || 'Detalhes do Serviço';
-        modalProviderName.textContent = `Prestado por: ${servico.nome || 'Não informado'}`;
-        
-        // Preço (usando sua lógica de precoFormatado)
-        let precoModal = 'Valor a combinar';
-        const valorFixoModal = formatSinglePrice(servico.valorFixo); // Requer formatSinglePrice
-        const valorMinModal = formatSinglePrice(servico.valorMin);
-        const valorMaxModal = formatSinglePrice(servico.valorMax);
-        const tipoDePrecoTextoModal = servico.precotipo ? servico.precotipo.trim() : "";
-
-        if (valorFixoModal) { precoModal = valorFixoModal; }
-        else if (valorMinModal && valorMaxModal) { precoModal = `${valorMinModal} - ${valorMaxModal}`; }
-        else if (valorMinModal) { precoModal = `A partir de ${valorMinModal}`; }
-        else if (valorMaxModal) { precoModal = `Até ${valorMaxModal}`; }
-        else if (tipoDePrecoTextoModal === "Valor variável") { precoModal = "Valor a combinar"; }
-        else if (tipoDePrecoTextoModal !== "") { precoModal = tipoDePrecoTextoModal; }
-        modalServicePrice.textContent = precoModal;
-
-        // Avaliação
-        let ratingModal = 'Novo';
-        const totalAvaliacoesNumModal = parseInt(servico.total_avaliacoes, 10);
-        const mediaAvaliacaoNumModal = parseFloat(servico.avaliacao_media);
-        if (!isNaN(totalAvaliacoesNumModal) && totalAvaliacoesNumModal > 0) {
-            if (!isNaN(mediaAvaliacaoNumModal)) {
-                ratingModal = `${mediaAvaliacaoNumModal.toFixed(1)} (${totalAvaliacoesNumModal} ${totalAvaliacoesNumModal === 1 ? 'aval.' : 'avaliações'})`;
-            } else {
-                ratingModal = `(${totalAvaliacoesNumModal} ${totalAvaliacoesNumModal === 1 ? 'aval.' : 'avaliações'}) - Média Indisp.`;
-            }
-        }
-        modalServiceRating.innerHTML = `<span class="star-icon">&#9733;</span> ${ratingModal}`;
-        
-        modalServiceCity.textContent = `${servico.cidade || ''} - ${servico.uf || ''}`;
-        modalServiceEmiteNf.textContent = servico.emiteNF ? 'Sim' : 'Não'; // "emiteNF" com N maiúsculo
-        modalServiceDescription.textContent = servico.descricao || 'Nenhuma descrição adicional fornecida.';
-        
-        let enderecoCompleto = "Endereço não fornecido";
-        if (servico.logradouro) {
-            enderecoCompleto = `${servico.logradouro}, ${servico.numero || 'S/N'} - ${servico.bairro || ''}, ${servico.cidade || ''} - ${servico.uf || ''}`;
-        }
-        modalServiceAddress.textContent = enderecoCompleto;
-        
-        modalServicePhone.textContent = censorPhoneNumber(servico.telefone);
-
-        openModal();
-    }
-
     function renderizarServicosBuscados(servicos) {
     console.log("Renderizando serviços, dados recebidos:", servicos); // Novo Log
    
     servicosGrid.innerHTML = ''; 
 
-    if (!servicosGrid) return; // Adicione esta verificação
-        servicosGrid.innerHTML = ''; 
-
-        if (!servicos || servicos.length === 0) {
-            servicosGrid.innerHTML = `<p style="color: var(--cor-texto-principal); text-align:center;">Nenhum serviço encontrado ou disponível no momento.</p>`;
-            return;
-        }
+    if (!servicos || servicos.length === 0) {
+        servicosGrid.innerHTML = `<p style="color: var(--cor-texto-principal); text-align:center;">Nenhum serviço encontrado ou disponível no momento.</p>`;
+        return;
+    }
 
     servicos.forEach(servico => {
-         if (servico.idpessoaservprod) {
-                servicosCarregados[servico.idpessoaservprod] = servico;
-            }
+        if (servico.idpessoaservprod) { // Importante para usar como chave e data-attribute
+        servicosCarregados[servico.idpessoaservprod] = servico;
+    }
         console.log('Dados do serviço para avaliação:', 
         { 
             titulo: servico.titulo, 
@@ -593,10 +497,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     ratingDisplay = `(${totalAvaliacoesNum} ${totalAvaliacoesNum === 1 ? 'aval.' : 'avaliações'}) - Média Indisp.`;
                 }
             }
+            // Se totalAvaliacoesNum for 0 ou NaN, ratingDisplay permanecerá 'Novo'
 
-                        // A montagem do cardHTML continua a mesma, usando ${ratingDisplay}
+            // A montagem do cardHTML continua a mesma, usando ${ratingDisplay}
             const cardHTML = `
-                <div class="service-card" data-service-id="${servico.idpessoaservprod}"> 
+                <div class="service-card">
                     <div class="card-header-title">
                         <h3 class="service-title">${servico.titulo || 'Título indisponível'}</h3>
                     </div>
@@ -625,26 +530,85 @@ document.addEventListener('DOMContentLoaded', () => {
             servicosGrid.insertAdjacentHTML('beforeend', cardHTML);
         });
     }
+
+    // Chamar a função para carregar cidades quando a página carregar
+    carregarCidades();
+    carregarServicosDestaque();
     
-document.body.addEventListener('click', function(event) {
+// Listener para o input da barra de pesquisa (você já tem este)
+    const debouncedFetchSuggestions = debounce(fetchAndRenderSuggestions, 400); // Certifique-se que está aqui
+    if (searchBar) {
+        searchBar.addEventListener('input', () => {
+            if (searchBar.value.trim().length === 0) { 
+                if(searchSuggestionsEl) {
+                    searchSuggestionsEl.style.display = 'none';
+                    searchSuggestionsEl.innerHTML = '';
+                }
+            } else {
+                debouncedFetchSuggestions();
+            }
+        });
+        searchBar.addEventListener('blur', () => { /* ...sua lógica de blur... */ });
+        searchBar.addEventListener('focus', () => { /* ...sua lógica de focus... */ });
+        searchBar.addEventListener('keydown', (event) => { /* ...sua lógica do Enter... */ });
+    }
+
+    // Listener para o botão de busca principal (você já tem este)
+    if (searchButton) {
+        searchButton.addEventListener('click', async () => { /* ...sua lógica de busca... */ });
+    }
+
+    // Listener DELEGADO para cliques nos cards de serviço (para abrir o dialog)
+    document.body.addEventListener('click', function(event) {
         const cardClicado = event.target.closest('.service-card');
-        console.log("Evento de clique no body disparado. Target:", event.target);
-        console.log("Tentando encontrar .service-card mais próximo:", cardClicado);
+        if (cardClicado) {
+            const servicoId = cardClicado.dataset.serviceId; 
+            if (servicoId) {
+                exibirDetalhesServicoDialog(servicoId);
+            }
+        }
+    });
 
-    if (cardClicado) {
-        console.log("Card clicado encontrado no DOM:", cardClicado);
-        const servicoId = cardClicado.dataset.serviceId; 
-        console.log("Serviço ID extraído do data-service-id:", servicoId); 
-        
-        if (servicoId) {
-            console.log("ID do serviço é válido, chamando exibirDetalhesServico...");
-            exibirDetalhesServico(servicoId);
-        } else {
-            console.warn("Card clicado não possui o atributo data-service-id ou está vazio.");
+    // Listeners para FECHAR o <dialog>
+    if (dialogCloseButton) {
+        dialogCloseButton.addEventListener('click', () => {
+            closeServiceDialog();
+        });
+    }
+
+    if (serviceDialog) { // serviceDialog é o próprio elemento <dialog>
+        serviceDialog.addEventListener('click', (event) => {
+            // Fecha se o clique for no backdrop (o próprio <dialog> fora do .dialog-content)
+            // Para isso funcionar bem, o .dialog-content não deve preencher 100% do <dialog>
+            // ou precisamos de uma lógica mais precisa para o clique no backdrop.
+            // Uma forma simples é verificar as dimensões do clique em relação ao dialog.
+            const rect = serviceDialog.getBoundingClientRect();
+            const isInDialog = (
+                rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+                rect.left <= event.clientX && event.clientX <= rect.left + rect.width
+            );
+            if (!isInDialog) { // Se o clique foi FORA da área retangular do dialog visível
+                 // Esta lógica acima para fechar no backdrop pode ser um pouco complexa.
+                 // O <dialog> nativo fecha com ESC.
+                 // Se o clique for no próprio serviceDialog (que atua como overlay para seu conteúdo)
+                 // E não no seu filho .dialog-content:
+                 if (event.target === serviceDialog) {
+                    closeServiceDialog();
+                 }
+            }
+        });
+    }
+    
+    // Listener para a tecla Escape (o <dialog> já faz isso, mas podemos adicionar para sugestões também)
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            if (searchSuggestionsEl && searchSuggestionsEl.style.display === 'block') {
+                searchSuggestionsEl.style.display = 'none';
+                searchSuggestionsEl.innerHTML = '';
+            } else if (serviceDialog && serviceDialog.hasAttribute('open')) { // Verifica se o dialog está aberto
+                closeServiceDialog();
+            }
         }
-    } else {
-        console.log("O clique não foi em um .service-card ou em um elemento dentro dele.");
-        }
+    });
 });
 
-});

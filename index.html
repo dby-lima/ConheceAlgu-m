@@ -217,51 +217,53 @@
 </footer>
 
     <script src="script.js"></script>
-<div id="service-detail-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
-        <button id="modal-close-button" class="modal-close">&times;</button>
-        
-        <div class="modal-header">
-            <h2 id="modal-service-title">Título do Serviço Detalhado</h2>
-            <p id="modal-provider-name" class="modal-provider">Prestado por: Nome do Prestador</p>
+
+<dialog id="service-detail-dialog" class="service-dialog">
+        <div class="dialog-content">
+            <header class="dialog-header">
+                <h2 id="dialog-service-title">Título do Serviço Detalhado</h2>
+                <p id="dialog-provider-name" class="dialog-provider">Prestado por: Nome do Prestador</p>
+                <button id="dialog-close-button" class="dialog-close-btn" aria-label="Fechar">&times;</button>
+            </header>
+
+            <section class="dialog-body">
+                <div class="dialog-info-grid">
+                    <div>
+                        <strong>Preço:</strong>
+                        <p id="dialog-service-price">R$ 00,00</p>
+                    </div>
+                    <div>
+                        <strong>Avaliação:</strong>
+                        <p id="dialog-service-rating"><span class="star-icon">&#9733;</span> --</p>
+                    </div>
+                    <div>
+                        <strong>Cidade de Atuação:</strong>
+                        <p id="dialog-service-city">Cidade - UF</p>
+                    </div>
+                    <div>
+                        <strong>Emite Nota Fiscal:</strong>
+                        <p id="dialog-service-emite-nf">Sim/Não</p>
+                    </div>
+                </div>
+
+                <div class="dialog-section">
+                    <h3>Descrição do Serviço</h3>
+                    <p id="dialog-service-description">Descrição detalhada do serviço aqui...</p>
+                </div>
+
+                <div class="dialog-section">
+                    <h3>Localização e Contato do Prestador</h3>
+                    <p id="dialog-service-address">Endereço completo: Rua, Número, Bairro.</p>
+                    <p><strong>Telefone:</strong> <span id="dialog-service-phone">(XX) *******XX</span></p>
+                </div>
+            </section>
+
+            <footer class="dialog-footer">
+                <button id="dialog-contratar-button" class="btn btn-dourado">Entrar em Contato</button>
+                </footer>
         </div>
+    </dialog>
 
-        <div class="modal-body">
-            <div class="modal-info-grid">
-                <div>
-                    <strong>Preço:</strong>
-                    <p id="modal-service-price">R$ 00,00</p>
-                </div>
-                <div>
-                    <strong>Avaliação:</strong>
-                    <p id="modal-service-rating"><span class="star-icon">&#9733;</span> --</p>
-                </div>
-                <div>
-                    <strong>Cidade:</strong>
-                    <p id="modal-service-city">Cidade - UF</p>
-                </div>
-                <div>
-                    <strong>Emite Nota Fiscal:</strong>
-                    <p id="modal-service-emite-nf">Sim/Não</p>
-                </div>
-            </div>
-
-            <div class="modal-section">
-                <h3>Descrição do Serviço</h3>
-                <p id="modal-service-description">Descrição detalhada do serviço aqui...</p>
-            </div>
-
-            <div class="modal-section">
-                <h3>Localização e Contato</h3>
-                <p id="modal-service-address">Endereço completo: Rua, Número, Bairro.</p>
-                <p><strong>Telefone:</strong> <span id="modal-service-phone">(XX) *******XX</span></p>
-            </div>
-        </div>
-
-        <div class="modal-footer">
-            <button id="modal-contratar-button" class="btn btn-dourado">Contratar Serviço</button>
-        </div>
-    </div>
-</div>
+<script src="script.js"></script>
 </body>
 </html>
