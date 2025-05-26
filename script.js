@@ -104,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function exibirDetalhesServicoDialog(idServico) {
         console.log("Função exibirDetalhesServicoDialog chamada com ID:", idServico);
         const servico = servicosCarregados[idServico];
-        
         if (!servico) {
             console.error("Detalhes do serviço não encontrados para o ID:", idServico, "em servicosCarregados:", servicosCarregados);
             return;
@@ -118,6 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Um ou mais elementos internos do dialog não foram encontrados no DOM! Verifique os IDs.");
             return;
         }
+        console.log("   C. Todos os elementos do dialog parecem ter sido encontrados.");
+
 
         dialogServiceTitle.textContent = servico.titulo || 'Detalhes do Serviço';
         dialogProviderName.textContent = `Prestado por: ${servico.nome || 'Não informado'}`;
@@ -162,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         dialogServicePhone.textContent = censorPhoneNumber(servico.telefone);
 
+        console.log("   D. Conteúdo do dialog preenchido, chamando openServiceDialog...");
         openServiceDialog(); // Chama a função para ABRIR o dialog
     }
 
@@ -499,43 +501,44 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // Se totalAvaliacoesNum for 0 ou NaN, ratingDisplay permanecerá 'Novo'
 
-            // A montagem do cardHTML continua a mesma, usando ${ratingDisplay}
-            const cardHTML = `
-                <div class="service-card">
-                    <div class="card-header-title">
-                        <h3 class="service-title">${servico.titulo || 'Título indisponível'}</h3>
+         // A montagem do cardHTML continua a mesma, usando ${ratingDisplay}
+        const cardHTML = `
+            <div class="service-card" data-service-id="${servico.idpessoaservprod}">
+                <div class="card-header-title">
+                    <h3 class="service-title">${servico.titulo || 'Título indisponível'}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="provider-info">
+                        <div class="provider-initial">${(servico.nome || 'N')[0].toUpperCase()}</div>
+                        <span class="service-provider">${servico.nome || 'Prestador não informado'}</span>
                     </div>
-                    <div class="card-body">
-                        <div class="provider-info">
-                            <div class="provider-initial">${(servico.nome || 'N')[0].toUpperCase()}</div>
-                            <span class="service-provider">${servico.nome || 'Prestador não informado'}</span>
-                        </div>
-                        <div class="service-details">
-                            <p>Valor:</p>
-                            <p class="service-price">${precoFormatado}</p>
-                            <p>Cidade:</p>
-                            <p class="service-city">${servico.cidade || 'Cidade não informada'}</p>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="service-rating">
-                            <span class="star-icon">&#9733;</span>
-                            <span>${ratingDisplay}</span> </div>
-                        <span class="status-badge ${servico.servicoAtivo ? 'disponivel' : 'indisponivel'}">
-                            ${servico.servicoAtivo ? 'Disponível' : 'Indisponível'}
-                        </span>
+                    <div class="service-details">
+                        <p>Valor:</p>
+                        <p class="service-price">${precoFormatado}</p>
+                        <p>Cidade:</p>
+                        <p class="service-city">${servico.cidade || 'Cidade não informada'}</p>
                     </div>
                 </div>
-            `;
-            servicosGrid.insertAdjacentHTML('beforeend', cardHTML);
-        });
-    }
+                <div class="card-footer">
+                    <div class="service-rating">
+                        <span class="star-icon">&#9733;</span>
+                        <span>${ratingDisplay}</span>
+                    </div>
+                    <span class="status-badge ${servico.servicoAtivo ? 'disponivel' : 'indisponivel'}">
+                        ${servico.servicoAtivo ? 'Disponível' : 'Indisponível'}
+                    </span>
+                </div>
+            </div>
+        `;
+    servicosGrid.insertAdjacentHTML('beforeend', cardHTML);
+    });
+}
 
     // Chamar a função para carregar cidades quando a página carregar
     carregarCidades();
     carregarServicosDestaque();
     
-// Listener para o input da barra de pesquisa (você já tem este)
+    // Listener para o input da barra de pesquisa (você já tem este)
     const debouncedFetchSuggestions = debounce(fetchAndRenderSuggestions, 400); // Certifique-se que está aqui
     if (searchBar) {
         searchBar.addEventListener('input', () => {
@@ -553,20 +556,117 @@ document.addEventListener('DOMContentLoaded', () => {
         searchBar.addEventListener('keydown', (event) => { /* ...sua lógica do Enter... */ });
     }
 
+    if (dialogContratarButton) {
+    dialogContratarButton.addEventListener('click', () => {
+        console.log("Botão 'Entrar em Contato' do modal clicado."); // Para depuração
+        window.open('https://conhece-alguem-exdsco.flutterflow.app/', '_blank');
+        // Ou, se preferir abrir na mesma aba:
+        // window.location.href = 'https://conhece-alguem-exdsco.flutterflow.app/';
+
+        // Opcional: Fechar o modal após clicar no botão, se fizer sentido para o fluxo
+        // closeServiceDialog(); 
+    });
+}
+
     // Listener para o botão de busca principal (você já tem este)
     if (searchButton) {
-        searchButton.addEventListener('click', async () => { /* ...sua lógica de busca... */ });
+        searchButton.addEventListener('click', async () => {
+            hideSearchValidationMessage(); // Função para esconder a mensagem (vamos criá-la abaixo)
+
+            const filtro = searchBar.value.trim();
+            const cidadeSelecionada = citySelect.value;
+            const nomeCidadeDisplay = citySelect.options[citySelect.selectedIndex].text;
+
+            // 1. VERIFICAR SE AMBOS OS CAMPOS ESTÃO VAZIOS PARA RESTAURAR DESTAQUES
+            if (!filtro && !cidadeSelecionada) { // Se filtro de texto está vazio E nenhuma cidade selecionada
+                if (servicosTitle) {
+                    servicosTitle.textContent = "Serviços em Destaque";
+                }
+                if (servicosGrid && htmlDestaquesOriginal) {
+                    servicosGrid.innerHTML = htmlDestaquesOriginal;
+                }
+                if (servicosSection) {
+                    servicosSection.scrollIntoView({ behavior: 'smooth' });
+                }
+                return; // Interrompe a execução aqui, não faz busca nem validação de cidade
+            }
+
+            // 2. VALIDAR SE A CIDADE FOI SELECIONADA (se não estivermos restaurando destaques)
+            if (!cidadeSelecionada) {
+                showSearchValidationMessage('Por favor, selecione uma cidade para continuar a busca.'); // Nova função
+                return;
+            }
+
+            // 3. PREPARAR UI E FAZER A BUSCA (como antes)
+            servicosGrid.innerHTML = '<p style="color: var(--cor-texto-principal); text-align:center;">Buscando serviços...</p>';
+            
+            let tituloBusca = '';
+            if (filtro && cidadeSelecionada) {
+                tituloBusca = `Encontre ${filtro} em ${nomeCidadeDisplay.split(' - ')[0]}`;
+            } else if (cidadeSelecionada) { // Filtro de texto pode estar vazio, mas cidade selecionada
+                tituloBusca = `Serviços em ${nomeCidadeDisplay.split(' - ')[0]}`;
+            }
+            servicosTitle.textContent = tituloBusca;
+
+            try {
+                const response = await fetch(supabaseRpcUrl, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': supabaseApiKey,
+                        'Authorization': `Bearer ${supabaseApiKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({
+                        filtro: filtro || "", 
+                        cidade_usuario: cidadeSelecionada
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Erro da API Supabase (buscar_servicos):', errorData);
+                    throw new Error(`Erro na busca: ${response.statusText} (Status: ${response.status})`);
+                }
+
+                const servicosEncontrados = await response.json();
+                renderizarServicosBuscados(servicosEncontrados);
+
+            } catch (error) {
+                console.error('Erro ao buscar serviços:', error);
+                servicosGrid.innerHTML = `<p style="color: red; text-align:center;">Ocorreu um erro ao buscar os serviços. Tente novamente.</p>`;
+            } finally {
+                // Rolar para a seção de serviços após a tentativa de busca
+                if (servicosSection) {
+                    servicosSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
     }
 
     // Listener DELEGADO para cliques nos cards de serviço (para abrir o dialog)
     document.body.addEventListener('click', function(event) {
         const cardClicado = event.target.closest('.service-card');
+
+        // Logs para depurar o clique no body
+    console.log("--- Debug Clique no Card ---"); // Log inicial para cada clique
+    console.log("1. Evento de clique no body disparado. Target:", event.target);
+    console.log("2. Tentando encontrar .service-card mais próximo:", cardClicado);
+
         if (cardClicado) {
+            console.log("3. Card clicado encontrado no DOM:", cardClicado);
             const servicoId = cardClicado.dataset.serviceId; 
+            console.log("4. Serviço ID extraído do data-service-id:", servicoId); 
             if (servicoId) {
-                exibirDetalhesServicoDialog(servicoId);
-            }
+                console.log("5. ID do serviço ('" + servicoId + "') é válido, chamando exibirDetalhesServicoDialog...");
+            exibirDetalhesServicoDialog(servicoId); // A chamada para a função principal
+        } else {
+            console.warn("6. Card clicado NÃO possui o atributo data-service-id ou está vazio.");
         }
+    } else {
+        console.log("3. O clique não foi em um .service-card ou em um elemento dentro dele.");
+    }
+    console.log("--- Fim Debug Clique no Card ---");
     });
 
     // Listeners para FECHAR o <dialog>
