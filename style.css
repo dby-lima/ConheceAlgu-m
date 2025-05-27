@@ -26,6 +26,10 @@ body {
     overflow-x: hidden; /* Evita scroll horizontal desnecessário */
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 section[id] {
     scroll-margin-top: 130px; /* Valor padrão para todas as seções */
 }
@@ -669,7 +673,7 @@ img {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Sombra sutil para efeito premium */
     text-align: center; /* Conteúdo do card centralizado */
     color: var(--cor-texto-principal); /* Texto escuro dentro do card branco */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
     display: flex; /* Para alinhar conteúdo interno verticalmente */
     flex-direction: column; /* Conteúdo empilhado */
     align-items: center; /* Centraliza o conteúdo horizontalmente */

@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="style.css">
     </head>
 <body>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conhece Alguém - Encontre os melhores serviços</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+    </head>
     <header class="header">
     <div class="container">
         <a href="#" class="logo">
@@ -21,58 +30,59 @@
 </header>
 
     <main class="hero-section">
-        <div class="container">
-            <h1>Encontre o profissional certo para o que você precisa.</h1>
-            <p class="subtitle">Serviços locais de confiança, avaliados pela comunidade.</p>
-            <a href="https://conhece-alguem-exdsco.flutterflow.app/" class="cta-button" target="_blank">Quero conhecer o App!</a>
+    <div class="container">
+        <h1 data-aos="fade-down" data-aos-delay="200">Encontre o profissional certo para o que você precisa.</h1>
+        <p class="subtitle" data-aos="fade-down" data-aos-delay="400">Serviços locais de confiança, avaliados pela comunidade.</p>
+        <a href="https://conhece-alguem-exdsco.flutterflow.app/" class="cta-button" target="_blank" data-aos="fade-up" data-aos-delay="600">Quero conhecer o App!</a>
 
-        <div class="search-container" style="position: relative;"> <input type="text" class="search-bar" placeholder="Qual serviço você está buscando? Ex: Eletricista, Encanador...">
-                <div id="search-suggestions" class="search-suggestions-list" style="display: none;">
-                    </div>
-                <div class="filter-widget">
-                    <select name="cidade" id="cidade-select">
-                        <option value="">Escolha a cidade</option>
-                        </select>
-                </div>
-                <div id="search-validation-message" class="search-validation-message" style="display: none;"></div>
-                <button class="search-button">Buscar</button>
+        <div class="search-container" style="position: relative;" data-aos="fade-up" data-aos-delay="700">
+            <input type="text" class="search-bar" placeholder="Qual serviço você está buscando? Ex: Eletricista, Encanador...">
+            <div id="search-suggestions" class="search-suggestions-list" style="display: none;"></div>
+            <div class="filter-widget">
+                <select name="cidade" id="cidade-select">
+                    <option value="">Escolha a cidade</option>
+                </select>
             </div>
-    </main>
+            <div id="search-validation-message" class="search-validation-message" style="display: none;"></div>
+            <button class="search-button">Buscar</button>
+        </div>
+    </div>
+</main>
 
     <section id="servicos" class="services-section">
     <div class="container">
-        <h2 id="servicos-section-title">Serviços em Destaque</h2>
-        <div class="services-grid" id="servicos-grid-content">
-            </div>
+        <h2 id="servicos-section-title" data-aos="fade-up" data-aos-delay="100">Serviços em Destaque</h2>
+        <div class="services-grid" id="servicos-grid-content" data-aos="fade-up" data-aos-delay="200">
+        </div>
     </div>
-    </section>
+</section>
 
    <section id="como-funciona" class="como-funciona-section">
     <div class="container">
-        <div class="section-title">
+        <div class="section-title" data-aos="fade-up">
             <h2>Como Funciona</h2>
         </div>
         <div class="como-funciona-grid">
-            <div class="como-funciona-card">
+            <div class="como-funciona-card" data-aos="fade-up" data-aos-delay="100">
                 <div class="card-icon">
                     <img src="image/search.png" alt="Ícone Encontre" style="width:50px; height:50px;">
-                    </div>
+                </div>
                 <h3>Encontre</h3>
                 <p>Busque pelo serviço que precisa em nossa plataforma de forma rápida e intuitiva.</p>
             </div>
 
-            <div class="como-funciona-card">
+            <div class="como-funciona-card" data-aos="fade-up" data-aos-delay="200">
                 <div class="card-icon">
                     <img src="image/cooperation.png" alt="Ícone Contrate" style="width:50px; height:50px;">
-                    </div>
+                </div>
                 <h3>Contrate</h3>
                 <p>Entre em contato diretamente com os melhores profissionais e feche o serviço.</p>
             </div>
 
-            <div class="como-funciona-card">
+            <div class="como-funciona-card" data-aos="fade-up" data-aos-delay="300">
                 <div class="card-icon">
                     <img src="image/star.png" alt="Ícone Avalie" style="width:50px; height:50px;">
-                    </div>
+                </div>
                 <h3>Avalie</h3>
                 <p>Deixe sua avaliação sobre o serviço prestado e ajude outros usuários da comunidade.</p>
             </div>
@@ -82,11 +92,11 @@
 
     <section id="sobre-app" class="sobre-app-section">
     <div class="container">
-        <div class="section-title">
+        <div class="section-title" data-aos="fade-up">
             <h2>Sobre o App Conhece Alguém</h2>
         </div>
         <div class="sobre-app-layout">
-            <div class="sobre-app-coluna texto">
+            <div class="sobre-app-coluna texto" data-aos="fade-right" data-aos-delay="200">
                 <p class="sobre-app-descricao">
                     O Conhece Alguém é a solução ideal para conectar clientes a profissionais qualificados
                     nas mais diversas áreas, de forma simples, rápida e confiável. Nossa missão é
@@ -119,9 +129,9 @@
                         Sistema de avaliações e perfis detalhados para mais segurança e confiança.
                     </li>
                 </ul>
-                </div>
+            </div>
 
-            <div class="sobre-app-coluna imagem">
+            <div class="sobre-app-coluna imagem" data-aos="fade-left" data-aos-delay="200">
                 <img src="image/Telas_ConheceAlguém.png" alt="Aplicativo Conhece Alguém em um celular">
             </div>
         </div>
@@ -130,13 +140,13 @@
 
 <section id="para-prestadores" class="prestadores-section">
     <div class="container">
-        <div class="section-title">
+        <div class="section-title" data-aos="fade-up">
             <h2>Ofereça Seus Serviços no Conhece Alguém</h2>
-            <p class="section-subtitle">Expanda sua clientela e gerencie seus serviços de forma simples e eficaz. Veja como é fácil começar:</p>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Expanda sua clientela e gerencie seus serviços de forma simples e eficaz. Veja como é fácil começar:</p>
         </div>
 
-        <div class="prestador-feature-item">
-            <div class="prestador-feature-coluna texto">
+        <div class="prestador-feature-item" data-aos="fade-up">
+            <div class="prestador-feature-coluna texto" data-aos="fade-right" data-aos-delay="200">
                 <span class="feature-numero">01</span>
                 <h3>Cadastro Rápido e Intuitivo</h3>
                 <p>Crie sua conta em poucos minutos. Nosso processo de cadastro é pensado para ser o mais simples possível, permitindo que você comece a configurar seu perfil profissional rapidamente.</p>
@@ -145,16 +155,16 @@
                     <li>Informações essenciais para começar.</li>
                 </ul>
             </div>
-            <div class="prestador-feature-coluna imagem">
+            <div class="prestador-feature-coluna imagem" data-aos="fade-left" data-aos-delay="200">
                 <img src="image/CadMockup.png" alt="Ilustração do processo de cadastro de prestador">
             </div>
         </div>
 
-        <div class="prestador-feature-item layout-reverso">
-            <div class="prestador-feature-coluna imagem">
+        <div class="prestador-feature-item layout-reverso" data-aos="fade-up">
+            <div class="prestador-feature-coluna imagem" data-aos="fade-right" data-aos-delay="200">
                 <img src="image/buscaMockup.png" alt="Ilustração de serviços ganhando visibilidade">
             </div>
-            <div class="prestador-feature-coluna texto">
+            <div class="prestador-feature-coluna texto" data-aos="fade-left" data-aos-delay="200">
                 <span class="feature-numero">02</span>
                 <h3>Ampla Visibilidade para Seus Serviços</h3>
                 <p>Ao se cadastrar, seus serviços ficam disponíveis para milhares de usuários em busca de profissionais qualificados. Aumente suas chances de ser encontrado e contratado.</p>
@@ -165,25 +175,25 @@
             </div>
         </div>
 
-      <div class="prestador-feature-item layout-stacked-image">
-    <div class="prestador-feature-coluna texto">
-        <span class="feature-numero">03</span>
-        <h3>Gerencie Seus Serviços com Facilidade</h3>
-        <p>Nossa plataforma oferece ferramentas para você descrever seus serviços, definir preços, horários de atendimento e gerenciar o contato com os clientes, tudo em um só lugar.</p>
-        <ul>
-            <li>Flexibilidade para definir seus termos.</li>
-            <li>Comunicação direta com os clientes.</li>
-        </ul>
-    </div>
-    <div class="prestador-feature-coluna imagem">
-        <img src="image/cadServMockup.png" alt="Ilustração da gestão de serviços na plataforma com múltiplas telas">
-    </div>
-</div>
+        <div class="prestador-feature-item layout-stacked-image" data-aos="fade-up">
+            <div class="prestador-feature-coluna texto" data-aos="fade-right" data-aos-delay="200">
+                <span class="feature-numero">03</span>
+                <h3>Gerencie Seus Serviços com Facilidade</h3>
+                <p>Nossa plataforma oferece ferramentas para você descrever seus serviços, definir preços, horários de atendimento e gerenciar o contato com os clientes, tudo em um só lugar.</p>
+                <ul>
+                    <li>Flexibilidade para definir seus termos.</li>
+                    <li>Comunicação direta com os clientes.</li>
+                </ul>
+            </div>
+            <div class="prestador-feature-coluna imagem" data-aos="fade-left" data-aos-delay="200">
+                <img src="image/cadServMockup.png" alt="Ilustração da gestão de serviços na plataforma com múltiplas telas">
+            </div>
+        </div>
 
-        <div class="prestador-cta">
+        <div class="prestador-cta" data-aos="fade-up" data-aos-delay="300">
             <p>Pronto para transformar suas habilidades em oportunidades?</p>
             <a href="https://conhece-alguem-exdsco.flutterflow.app/" class="btn btn-dourado" target="_blank">Quero Ser Prestador</a>
-            </div>
+        </div>
     </div>
 </section>
 
@@ -266,5 +276,21 @@
     </dialog>
 
 <script src="script.js"></script>
+<body>
+    <dialog id="service-detail-dialog" class="service-dialog">
+        </dialog>
+
+    <script src="script.js"></script> 
+    
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+      // INICIALIZE A AOS AQUI
+      AOS.init({
+          duration: 800, // Duração da animação em ms
+          once: true,    // Se a animação deve acontecer apenas uma vez
+          offset: 50,    // Distância (em px) do elemento para o fundo da tela para disparar a animação
+          // Outras opções: delay, easing, etc. Veja a documentação da AOS.
+      });
+    </script>
 </body>
 </html>

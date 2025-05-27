@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Variáveis globais ao escopo do DOMContentLoaded
     let servicosCarregados = {}; // Para armazenar os dados dos serviços carregados
-    // let htmlDestaquesOriginal = ''; // Você não precisa mais desta se os destaques são 100% dinâmicos
+    let htmlDestaquesOriginal = ''; 
 
     // Suas URLs e Chave API do Supabase (já devem estar aqui)
     const supabaseRpcUrl = 'https://tptihbousfgodqkvdqki.supabase.co/rest/v1/rpc/buscar_servicos';
@@ -578,17 +578,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const nomeCidadeDisplay = citySelect.options[citySelect.selectedIndex].text;
 
             // 1. VERIFICAR SE AMBOS OS CAMPOS ESTÃO VAZIOS PARA RESTAURAR DESTAQUES
-            if (!filtro && !cidadeSelecionada) { // Se filtro de texto está vazio E nenhuma cidade selecionada
-                if (servicosTitle) {
-                    servicosTitle.textContent = "Serviços em Destaque";
-                }
-                if (servicosGrid && htmlDestaquesOriginal) {
-                    servicosGrid.innerHTML = htmlDestaquesOriginal;
-                }
+            if (!filtro && !cidadeSelecionada) { 
+                console.log("Restaurando destaques..."); 
+                await carregarServicosDestaque(); // Garante que os destaques dinâmicos são carregados
                 if (servicosSection) {
                     servicosSection.scrollIntoView({ behavior: 'smooth' });
                 }
-                return; // Interrompe a execução aqui, não faz busca nem validação de cidade
+                return; 
             }
 
             // 2. VALIDAR SE A CIDADE FOI SELECIONADA (se não estivermos restaurando destaques)
