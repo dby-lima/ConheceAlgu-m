@@ -30,6 +30,11 @@ html {
     scroll-behavior: smooth;
 }
 
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+}
+
 section[id] {
     scroll-margin-top: 130px; /* Valor padrão para todas as seções */
 }
@@ -115,10 +120,6 @@ img {
     text-align: center; /* Centraliza o texto dentro do container */
     padding-top: 80px; /* Espaçamento no topo para compensar o header fixo */
     padding-bottom: 40px;
-}
-
-.hero-section .container {
-    /* O container já centraliza horizontalmente, aqui ajustamos o padding se necessário */
 }
 
 .hero-section h1 {
@@ -213,6 +214,8 @@ img {
     text-align: center; /* Centraliza o título da seção */
     font-size: 2.2rem;
     margin-bottom: 40px;
+    overflow-wrap: break-word; 
+    word-wrap: break-word; 
 }
 
 /* Substitua o estilo anterior da .services-grid por este */
@@ -493,11 +496,23 @@ img {
     }
 }
 
-/* Telas Pequenas (Celulares em paisagem, tablets em retrato - até 768px) */
+
 /* Telas Pequenas (Celulares em paisagem, tablets em retrato - até 768px) */
 @media (max-width: 768px) {
+    #servicos-section-title, /* Aplicando também aqui para garantir */
+    .services-section h2, /* Se quiser ser mais geral */
+    .info-section h2,
+    .footer-cta h2 {
+        font-size: 1.8rem; /* Seu estilo existente */
+        overflow-wrap: break-word; /* Garantir quebra no mobile */
+        word-wrap: break-word;
+    }
     .container {
         width: 90%; /* Mantém um bom padding lateral */
+    }
+
+    .header {
+        position: static;
     }
 
     .header .container {
@@ -516,6 +531,8 @@ img {
 
     .header .nav-menu {
         display: none; /* Esconde o menu de navegação do cabeçalho no mobile */
+        width: 100%; /* Adicione isso para ver se ajuda o nav-menu a se comportar */
+        text-align: center;
     }
 
     .header .nav-menu a {
@@ -524,7 +541,7 @@ img {
     }
 
     .hero-section {
-        padding-top: 80px; /* REDUZIDO - Ajustado para altura do header mobile */
+        padding-top: 20px; /* REDUZIDO - Ajustado para altura do header mobile */
         min-height: auto; /* Altura automática para o conteúdo */
         padding-bottom: 30px;
     }
@@ -602,7 +619,7 @@ img {
     }
 
     .hero-section {
-        padding-top: 180px; /* Header pode ficar ainda maior se o menu quebrar em várias linhas */
+        padding-top: 15px; /* Header pode ficar ainda maior se o menu quebrar em várias linhas */
     }
 
     .hero-section h1 {
@@ -886,9 +903,6 @@ img {
     }
      .sobre-app-coluna.texto h3, .sobre-app-descricao {
         text-align: left; /* Alinha textos da coluna à esquerda no mobile */
-    }
-     .vantagens-lista {
-        /* text-align: left;  Já é por padrão */
     }
 
     .sobre-app-coluna.imagem img {
