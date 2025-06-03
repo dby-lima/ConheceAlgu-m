@@ -145,13 +145,27 @@ img {
     border-radius: 5px; /* Cantos arredondados */
     text-transform: uppercase; /* Texto em maiúsculas */
     display: inline-block; /* Para que padding e margin funcionem corretamente */
-    margin-bottom: 3rem;
+    margin-bottom: 30px;
     transition: background-color 0.3s ease, transform 0.2s ease; /* Transição suave */
 }
 
 .hero-section .cta-button:hover {
     background-color: #c89027; /* Um tom de amarelo um pouco mais escuro no hover */
     transform: translateY(-2px); /* Efeito de leve elevação */
+}
+
+.search-icon-mobile {
+    display: none; /* Escondido por padrão (no desktop) */
+    /* Estilos básicos para o botão ícone que serão usados no mobile: */
+    background-color: var(--amarelo-dourado);
+    color: var(--azul-escuro);
+    border: none;
+    padding: 0 15px; /* Ajuste conforme o tamanho do ícone e do input */
+    cursor: pointer;
+    border-radius: 0 8px 8px 0; /* Para arredondar o canto direito junto com o input */
+    font-size: 1.2rem; /* Tamanho da lupa */
+    height: 50px; /* Tente igualar à altura do .search-bar */
+    align-self: stretch; /* Para esticar na altura do grid se for o caso */
 }
 
 .search-container {
@@ -507,6 +521,11 @@ img {
         overflow-wrap: break-word; /* Garantir quebra no mobile */
         word-wrap: break-word;
     }
+
+    .search-button { /* Botão de texto "Buscar" original */
+        display: none; /* ESCONDE o botão de texto no mobile */
+    }
+
     .container {
         width: 90%; /* Mantém um bom padding lateral */
     }
@@ -555,20 +574,109 @@ img {
     }
 
     .search-container {
-        flex-direction: column; /* Barra de busca, filtro e botão um abaixo do outro */
+        display: grid; /* MUITO IMPORTANTE: Usar Grid no Mobile */
+        grid-template-columns: 1fr auto; /* Coluna para input, coluna para ícone/botão */
+        grid-template-rows: auto auto auto auto;    /* Linhas para: 1.Cidade, 2.Barra+Ícone, 3.Sugestões, 4.Validação */
+        gap: 15px; 
+        
+        background-color: transparent; /* Remove o visual de "caixa" no mobile */
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin-top: 25px;
+        width: 100%;
+    }
+
+    .search-bar-wrapper {
+        order: 2; /* Ordem visual: Cidade (1), Barra de Busca (2), Botão (3), Mensagem (4) */
+        width: 100%; /* Garante que o wrapper ocupe a largura */
+        margin-bottom: 15px; /* Espaço abaixo da barra de busca */
+    }
+
+    .search-bar {
+        grid-column: 1 / 2;  /* Primeira coluna da segunda linha */
+        grid-row: 2;         /* Segunda linha */
+        width: 100%; 
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: none; 
+        height: 50px; 
         padding: 15px;
     }
 
-    .search-bar,
-    .filter-widget select,
+    .search-suggestions-list {
+        grid-column: 1 / -1; /* Ocupa todas as colunas */
+        grid-row: 3;         /* TERCEIRA LINHA, abaixo da barra de busca/ícone */
+        position: static;    /* MUITO IMPORTANTE: Deixa de ser absoluto no mobile */
+        margin-top: 0;       /* Remove qualquer margem de cima que possa ter */
+        border-top: 1px solid #ddd; /* Readiciona a borda de cima */
+        border-radius: 8px;  /* Pode ter todos os cantos arredondados */
+        z-index: auto;       /* z-index não é tão relevante para static */
+        /* max-height e overflow-y já definidos globalmente, o que é bom */
+    }
+
+
+    .search-icon-mobile { /* O botão com o ícone de lupa */
+        display: flex; 
+        align-items: center;
+        justify-content: center;
+        grid-column: 2 / 3;  /* Segunda coluna da segunda linha */
+        grid-row: 2;         /* Segunda linha */
+        height: 50px; 
+        /* Estilos do botão (background, color, etc.) como você já tem */
+        background-color: var(--amarelo-dourado);
+        color: var(--azul-escuro);
+        border: none;
+        padding: 0 15px;
+        cursor: pointer;
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+        font-size: 1.2rem;
+    }
+
+    .filter-widget { /* Dropdown de Cidade */
+        grid-column: 1 / -1; /* Ocupa todas as colunas da primeira linha */
+        grid-row: 1;         /* Primeira linha */
+        width: 100%;
+        margin-bottom: 0; /* Gap do grid cuida do espaçamento */
+    }
+
     .search-button {
-        width: 100%; /* Ocupam toda a largura disponível no container da busca */
+        order: 3; /* Botão "Buscar" depois da barra de pesquisa */
+        width: 100%; /* Botão ocupa toda a largura */
+        padding: 15px; /* Ajusta padding para mobile se necessário */
+        font-size: 1.1rem; /* Ajusta tamanho da fonte se necessário */
+        margin-bottom: 15px; /* Espaço abaixo do botão */
+    }
+
+    .search-validation-message {
+    width: 100%; /* Para ocupar a largura do .search-container no mobile quando empilhado */
+    order: 4; /* Para garantir que fique entre o select e o botão no flex mobile */
+    padding: 10px 15px;
+    margin: 10px 0; /* Margem vertical */
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    background-color: rgba(223, 169, 51, 0.1); /* Fundo amarelo dourado bem sutil */
+    color: var(--amarelo-dourado); /* Texto dourado */
+    border: 1px solid rgba(223, 169, 51, 0.25);
+    grid-column: 1 / -1; /* Ocupa todas as colunas */
+    grid-row: 4;       /* Fica abaixo da lista de sugestões */
     }
 
     .filter-widget select {
-        min-width: auto; /* Remove largura mínima no mobile */
+        width: 100%;
+        color: var(--cor-texto-principal); /* Texto escuro */
+        background-color: #f0f0f0;     /* Fundo claro para contraste */
+        border: 1px solid #ccc;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        padding-left: 18px;
+        padding-right: 35px; 
+        font-size: 1rem;
+        border-radius: 8px;
     }
-
     .services-section h2,
     .info-section h2,
     .footer-cta h2 {
@@ -1164,24 +1272,21 @@ img {
 }
 
 .search-suggestions-list {
-    position: absolute; /* Posicionamento absoluto em relação ao .search-container */
-    top: 100%; /* Começa logo abaixo do elemento pai (assumindo que o input é o primeiro ou tem altura definida) */
-    /* Se o input não for o primeiro elemento ou se a altura variar, pode ser preciso ajustar 'top' via JS ou
-       colocar o input e a lista de sugestões em um wrapper div com position:relative.
-       Por enquanto, vamos assumir que 'top: 100%' do .search-bar (ou do container do search-bar) funciona.
-       Para ser mais preciso em relação ao .search-bar: */
-    /* top: calc(var(--input-height, 50px) + 2px); Ajustar --input-height conforme necessário */
+    position: absolute; 
+    top: 100%; /* Relativo ao .search-bar se estiverem num wrapper, ou ao .search-container */
     left: 0;
-    right: 0; /* Ocupa a largura do .search-container */
+    right: 0; 
     background-color: #ffffff;
     border: 1px solid #ddd;
-    border-top: none; /* Evita borda dupla com o input, se estiver colado */
-    border-radius: 0 0 8px 8px; /* Cantos arredondados apenas na parte inferior */
+    border-top: none; 
+    border-radius: 0 0 8px 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    z-index: 999; /* Para ficar sobre outros elementos próximos */
-    max-height: 250px; /* Altura máxima, com scroll se houver muitas sugestões */
+    z-index: 1000; 
+    max-height: 250px;
     overflow-y: auto;
+    text-align: left; 
 }
+
 
 .search-suggestions-list .suggestion-item {
     padding: 10px 15px;

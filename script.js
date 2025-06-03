@@ -2,6 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const searchValidationMessageEl = document.getElementById('search-validation-message');
     const searchSuggestionsEl = document.getElementById('search-suggestions');
+    const searchIconMobile = document.querySelector('.search-icon-mobile');
 
     // --- Seletores para o <dialog> ---
     const serviceDialog = document.getElementById('service-detail-dialog');
@@ -383,6 +384,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    searchBar.addEventListener('focus', () => {
+            // Verifica se é uma tela mobile (ex: largura menor que 769px)
+            if (window.innerWidth < 769) {
+                // Rola a barra de pesquisa para o centro da tela, ou um pouco para baixo.
+                // 'center' tenta centralizar o elemento na parte visível.
+                // 'nearest' rola o mínimo necessário.
+                // Pode ser necessário um pequeno delay para dar tempo ao teclado começar a subir.
+                setTimeout(() => {
+                    searchBar.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+                    // Você pode experimentar com block: 'start' ou 'nearest' também,
+                    // e adicionar um offset manual se 'center' não for ideal.
+                }, 100); // Pequeno delay de 100ms
+            }
+            // Sua lógica existente para mostrar sugestões ao focar, se houver, continua aqui:
+            // if (searchBar.value.trim().length >= 3 && citySelect.value) {
+            //    debouncedFetchSuggestions();
+            // }
+        });
+
     // Esconder sugestões se o usuário clicar fora (blur)
     searchBar.addEventListener('blur', () => {
         // Pequeno delay para permitir o clique na sugestão antes de esconder
@@ -671,6 +691,15 @@ document.addEventListener('DOMContentLoaded', () => {
             closeServiceDialog();
         });
     }
+
+    if (searchIconMobile) {
+    searchIconMobile.addEventListener('click', async () => {
+        // A tecla Enter já chama searchButton.click(), então o ícone também pode.
+        if (searchButton) { 
+            searchButton.click(); // Dispara a mesma lógica do botão de busca principal
+        }
+    });
+}
 
     if (serviceDialog) { // serviceDialog é o próprio elemento <dialog>
         serviceDialog.addEventListener('click', (event) => {
