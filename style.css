@@ -484,6 +484,14 @@ img {
     */
 }
 
+.search-bar-wrapper {
+    position: relative; /* Mantém para o posicionamento das sugestões */
+    display: flex;      /* Para o .search-bar interno poder usar flex-grow */
+    flex-grow: 1;     /* FAZ O WRAPPER CRESCER para ocupar o espaço disponível no .search-container */
+    /* min-width: 300px;  Se você quiser que a barra de busca tenha um mínimo,
+                          pode ser aplicado aqui ou diretamente no .search-bar */
+}
+
 /*
    Lembre-se que a .services-grid já está configurada para rolagem horizontal
    e os .service-card têm uma largura mínima. Este ajuste no .container
@@ -524,6 +532,12 @@ img {
 
     .search-button { /* Botão de texto "Buscar" original */
         display: none; /* ESCONDE o botão de texto no mobile */
+    }
+
+    .search-icon-mobile .search-svg-icon {
+        fill: var(--azul-escuro); /* Cor da lupa (azul escuro do header) */
+        width: 25px;  /* Ajuste o tamanho conforme necessário */
+        height: 25px; /* Ajuste o tamanho conforme necessário */
     }
 
     .container {
@@ -578,6 +592,8 @@ img {
         grid-template-columns: 1fr auto; /* Coluna para input, coluna para ícone/botão */
         grid-template-rows: auto auto auto auto;    /* Linhas para: 1.Cidade, 2.Barra+Ícone, 3.Sugestões, 4.Validação */
         gap: 15px; 
+        column-gap: 0; /* <--- PARA NÃO HAVER ESPAÇO ENTRE COLUNAS (barra e ícone) */
+        row-gap: 0; 
         
         background-color: transparent; /* Remove o visual de "caixa" no mobile */
         border: none;
@@ -585,12 +601,18 @@ img {
         padding: 0;
         margin-top: 25px;
         width: 100%;
+        font-size: 0;
     }
 
     .search-bar-wrapper {
         order: 2; /* Ordem visual: Cidade (1), Barra de Busca (2), Botão (3), Mensagem (4) */
         width: 100%; /* Garante que o wrapper ocupe a largura */
-        margin-bottom: 15px; /* Espaço abaixo da barra de busca */
+        margin-bottom: 15px;
+    }
+
+    .search-bar-wrapper .search-bar {
+        flex-grow: 1;
+        width: 100%; /* Ocupa toda a largura do wrapper */
     }
 
     .search-bar {
@@ -599,46 +621,57 @@ img {
         width: 100%; 
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
-        border-right: none; 
-        height: 50px; 
-        padding: 15px;
+        border-right: none; /* Remove a borda direita */
+        border-top-left-radius: 8px;    /* Raio do canto superior esquerdo */
+        border-bottom-left-radius: 8px; /* Raio do canto inferior esquerdo */
+        border-top-right-radius: 0;     /* Sem raio no canto superior direito */
+        border-bottom-right-radius: 0;  /* Sem raio no canto inferior direito */
+        margin-right: 0; /* Garante que não haja margem empurrando o ícone */
+        font-size: 1rem;
     }
 
-    .search-suggestions-list {
-        grid-column: 1 / -1; /* Ocupa todas as colunas */
-        grid-row: 3;         /* TERCEIRA LINHA, abaixo da barra de busca/ícone */
-        position: static;    /* MUITO IMPORTANTE: Deixa de ser absoluto no mobile */
-        margin-top: 0;       /* Remove qualquer margem de cima que possa ter */
-        border-top: 1px solid #ddd; /* Readiciona a borda de cima */
-        border-radius: 8px;  /* Pode ter todos os cantos arredondados */
-        z-index: auto;       /* z-index não é tão relevante para static */
-        /* max-height e overflow-y já definidos globalmente, o que é bom */
+    .search-suggestions-list { /* Lista de sugestões */
+        grid-column: 1 / -1; /* Ocupa a largura total do grid */
+        grid-row: 3;         /* Fica na linha abaixo da barra de busca/ícone */
+        position: static;    /* Torna-se parte do fluxo do grid */
+        margin-top: 0;       /* Remove qualquer margem de cima */
+        border-top: 1px solid #ddd; 
+        border-radius: 8px; 
+        width: auto; /* Largura determinada pelo grid-column */
+        left: auto;  /* Reset de posicionamento absoluto */
+        right: auto; /* Reset de posicionamento absoluto */
+        /* z-index, max-height, overflow-y podem ser mantidos */
     }
 
 
-    .search-icon-mobile { /* O botão com o ícone de lupa */
+    .search-icon-mobile {
         display: flex; 
         align-items: center;
         justify-content: center;
-        grid-column: 2 / 3;  /* Segunda coluna da segunda linha */
-        grid-row: 2;         /* Segunda linha */
+        grid-column: 2 / 3;
+        grid-row: 2;
         height: 50px; 
-        /* Estilos do botão (background, color, etc.) como você já tem */
+        padding: 15px;
         background-color: var(--amarelo-dourado);
-        color: var(--azul-escuro);
-        border: none;
-        padding: 0 15px;
         cursor: pointer;
-        border-top-right-radius: 8px;
-        border-bottom-right-radius: 8px;
+        border: 1px solid var(--amarelo-dourado); /* Mantém a borda para cor e espessura consistentes */
+
+        /* Ajustes para juntar com a barra de pesquisa */
+        border-left: none; /* Remove a borda esquerda */
+        border-top-left-radius: 0;      /* Sem raio no canto superior esquerdo */
+        border-bottom-left-radius: 0;   /* Sem raio no canto inferior esquerdo */
+        border-top-right-radius: 8px;     /* Raio do canto superior direito */
+        border-bottom-right-radius: 8px;  /* Raio do canto inferior direito */
+        margin-left: 0px; /* Garante que não haja margem */
         font-size: 1.2rem;
+        /* font-size já definido para o ícone SVG */
     }
 
     .filter-widget { /* Dropdown de Cidade */
-        grid-column: 1 / -1; /* Ocupa todas as colunas da primeira linha */
-        grid-row: 1;         /* Primeira linha */
+        grid-column: 1 / -1; 
+        grid-row: 1;    
         width: 100%;
-        margin-bottom: 0; /* Gap do grid cuida do espaçamento */
+        margin-bottom: 15px; /* Adiciona espaço ANTES da próxima linha (barra de busca) */
     }
 
     .search-button {
